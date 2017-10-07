@@ -9,15 +9,23 @@ class PieceRank(Enum):
 
 # board
 boardDimension = 8
-emptySquareChar = '.'
+emptySquareChar = 'e'
 board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
 
 # print board
 def printBoard():
+    # create the line used to divide the squares
+    line = "."
+    for i in range(boardDimension):
+        line += "   ."
+    # print the first line
+    print(line)
+    # print everithing else
     for row in board:
         for col in row:
-            print(col, end='')
+            print("  " + col + " ", end='')s
         print()
+        print(line)
 
 
 # player class
@@ -35,9 +43,3 @@ class Piece:
     
     def becomesKing(self):
         self.rank = PieceRank.KING
-
-
-p = Piece("A")
-print(p.rank)
-p.becomesKing()
-print(p.rank)
