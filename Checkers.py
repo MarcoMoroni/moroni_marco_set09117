@@ -2,15 +2,16 @@
 # CHECKERS #
 ############
 
+# board
 boardDimension = 8
 emptySquareChar = '.'
-
 board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
 
-def printBoard(board):
+# print board
+def printBoard():
     for row in board:
         for col in row:
             print(col, end='')
         print()
 
-printBoard(board)
+printBoard()
