@@ -11,13 +11,6 @@ class PieceRank(Enum):
 
 
 
-# board
-boardDimension = 8
-emptySquareChar = 'e'
-board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
-
-
-
 # print board
 def printBoard():
     # create the line to visually divide the squares
@@ -28,8 +21,11 @@ def printBoard():
     print(line)
     # print everithing else
     for row in board:
-        for col in row:
-            print("  " + col + " ", end='')
+        for square in row:
+            if (type(square) is Piece):
+                print("  " + square.player.symbol + " ", end='')
+            else:
+                print("    ", end='')
         print()
         print(line)
 
@@ -52,3 +48,28 @@ class Piece:
     
     def becomesKing(self):
         self.rank = PieceRank.KING
+
+
+
+# create board
+boardDimension = 8
+emptySquareChar = "e"
+board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
+
+# create players
+human = Player("o")
+cpu = Player("x")
+players = []
+players.append(human)
+players.append(cpu)
+
+# pieces setup
+for player in players:
+    for row in range(3):
+        for col in range(boardDimension):
+            if (col + row) % 2 == 0:
+                newPiece = Piece(player)
+                if player == human:
+                    board[boardDimension - 1 - (boardDimension + row)][boardDimension - 1 - (boardDimension + col)] = newPiece
+                else:
+                    board[row][col] = newPiece
