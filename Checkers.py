@@ -56,6 +56,17 @@ class Piece:
 
 
 
+# turn class
+class Move:
+
+    def __init__(self, piece, direction, doesEat=False, doesBecomeKing=False):
+        self.piece = piece
+        self.direction = direction
+        self.doesEat = doesEat
+        self.doesBecomeKing = doesBecomeKing
+
+
+
 # create board
 boardDimension = 8
 emptySquareChar = "e"
