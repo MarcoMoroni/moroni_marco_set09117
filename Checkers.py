@@ -34,9 +34,12 @@ def printBoard():
 
 # player class
 class Player:
-    def __init__(self, symbols):
+
+    def __init__(self, symbols, facingUp=False):
         # symbol[0] is for Man, [1] is for King
         self.symbols = {PieceRank.MAN: symbols[0], PieceRank.KING: symbols[1]}
+        # remember the player side on the board
+        self.facingUp = facingUp
 
 
 
@@ -44,10 +47,6 @@ class Player:
 class Piece:
     
     rank = PieceRank.MAN
-    
-    def __init__(self, player, initialPosition):
-        self.player = player
-        self.initialPosition = initialPosition
 
     def __init__(self, player):
         self.player = player
@@ -63,8 +62,8 @@ emptySquareChar = "e"
 board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
 
 # create players
-human = Player(["o", "O"])
-cpu = Player(["x", "O"])
+human = Player(["o", "O"], True)
+cpu = Player(["x", "X"])
 players = []
 players.append(human)
 players.append(cpu)
@@ -75,7 +74,7 @@ for player in players:
         for col in range(boardDimension):
             if (col + row) % 2 == 0:
                 newPiece = Piece(player)
-                if player == human:
+                if player.facingUp:
                     newPiece.initialPosition = (boardDimension - 1 - (boardDimension + row), boardDimension - 1 - (boardDimension + col))
                 else:
                     newPiece.initialPosition = (row, col)
