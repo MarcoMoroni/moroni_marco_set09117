@@ -23,7 +23,8 @@ def printBoard():
     for row in board:
         for square in row:
             if (type(square) is Piece):
-                print("  " + square.player.symbol + " ", end='')
+                # print the symbol of the piece depending on the rank
+                print("  " + square.player.symbols[square.rank] + " ", end='')
             else:
                 print("    ", end='')
         print()
@@ -33,8 +34,9 @@ def printBoard():
 
 # player class
 class Player:
-    def __init__(self, symbol):
-        self.symbol = symbol
+    def __init__(self, symbols):
+        # symbol[0] is for Man, [1] is for King
+        self.symbols = {PieceRank.MAN: symbols[0], PieceRank.KING: symbols[1]}
 
 
 
@@ -61,8 +63,8 @@ emptySquareChar = "e"
 board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
 
 # create players
-human = Player("o")
-cpu = Player("x")
+human = Player(["o", "O"])
+cpu = Player(["x", "O"])
 players = []
 players.append(human)
 players.append(cpu)
