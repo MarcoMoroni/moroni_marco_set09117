@@ -35,11 +35,11 @@ def printBoard():
 # player class
 class Player:
 
-    def __init__(self, symbols, facingUp=False):
+    def __init__(self, symbols, isFacingUp=False):
         # symbol[0] is for Man, [1] is for King
         self.symbols = {PieceRank.MAN: symbols[0], PieceRank.KING: symbols[1]}
         # remember the player side on the board
-        self.facingUp = facingUp
+        self.isFacingUp = isFacingUp
 
 
 
@@ -59,11 +59,21 @@ class Piece:
 # turn class
 class Move:
 
-    def __init__(self, piece, direction, doesEat=False, doesBecomeKing=False):
+    def __init__(self, piece, displacement, doesEat=False, doesBecomeKing=False):
         self.piece = piece
-        self.direction = direction
+        self.displacement = displacement
         self.doesEat = doesEat
         self.doesBecomeKing = doesBecomeKing
+
+
+
+# get x y coordinates from string
+def coordinatesFromInput(text):
+    # split
+    coord = text.split()
+    # convet to int
+    coord = [int(i) for i in coord]
+    return coord
 
 
 
@@ -85,8 +95,55 @@ for player in players:
         for col in range(boardDimension):
             if (col + row) % 2 == 0:
                 newPiece = Piece(player)
-                if player.facingUp:
+                if player.isFacingUp:
                     newPiece.initialPosition = (boardDimension - 1 - (boardDimension + row), boardDimension - 1 - (boardDimension + col))
                 else:
                     newPiece.initialPosition = (row, col)
                 board[newPiece.initialPosition[0]][newPiece.initialPosition[1]] = newPiece
+
+# create a history of moves
+moves = []
+
+# game loop
+someoneWins = False
+while not someoneWins:
+    for player in players:
+
+        printBoard()
+    
+        # select a piece in a square
+        rowSelected = ""
+        colSelected = ""
+        while rowSelected == "" and colSelected == "":
+            textInput = input("Select piece > ")
+            tempRow, tempCol = coordinatesFromInput(textInput)
+            # select it if there is a piece
+            # and it belongs to the player
+            # and it can be moved
+            squareToCheck = board[tempRow][tempCol]
+            if (type(squareToCheck) is Piece):
+                if (squareToCheck.player == player): ## && it can be moved - TODO
+                    rowSelected = tempRow
+                    colSelected = tempCol
+            else:
+                print("You can't select this piece.")
+
+        # do a move - TODO must do at leat 1 move
+        turnEnd = False
+        while not turnEnd:
+            textInput = input("Move to > ")
+            newRow, newCol = coordinatesFromInput(textInput)
+            # if its a legal move
+            if True: # TODO
+                board[newRow][newCol] = board[rowSelected][colSelected] # IS THIS A COPY?
+                board[rowSelected][colSelected] = emptySquareChar
+                turnEnd = True
+                # become king
+                if player.isFacingUp:
+                    if (newRow == 0):
+                        board[newRow][newCol].becomesKing()
+                else:
+                    if (newRow == boardDimention):
+                        board[newRow][newCol].becomesKing()
+
+        # store move - TODO
