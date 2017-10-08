@@ -43,6 +43,10 @@ class Piece:
     
     rank = PieceRank.MAN
     
+    def __init__(self, player, initialPosition):
+        self.player = player
+        self.initialPosition = initialPosition
+
     def __init__(self, player):
         self.player = player
     
@@ -70,6 +74,7 @@ for player in players:
             if (col + row) % 2 == 0:
                 newPiece = Piece(player)
                 if player == human:
-                    board[boardDimension - 1 - (boardDimension + row)][boardDimension - 1 - (boardDimension + col)] = newPiece
+                    newPiece.initialPosition = (boardDimension - 1 - (boardDimension + row), boardDimension - 1 - (boardDimension + col))
                 else:
-                    board[row][col] = newPiece
+                    newPiece.initialPosition = (row, col)
+                board[newPiece.initialPosition[0]][newPiece.initialPosition[1]] = newPiece
