@@ -59,10 +59,10 @@ class Piece:
 # turn class
 class Move:
 
-    def __init__(self, piece, displacement, doesEat=False, doesBecomeKing=False):
+    def __init__(self, piece, displacement, doesBecomeKing=False):
         self.piece = piece
         self.displacement = displacement
-        self.doesEat = doesEat
+        # note: if displacement is (+-2,+-2) it means the pieace eats
         self.doesBecomeKing = doesBecomeKing
 
 
@@ -110,12 +110,15 @@ while not someoneWins:
     for player in players:
 
         printBoard()
+
+        doesBecomeKing = False # for storing move
     
         # select a piece in a square
         rowSelected = ""
         colSelected = ""
         while rowSelected == "" and colSelected == "":
-            textInput = input("Select piece > ")
+            stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " >"
+            textInput = input(stringToPrintToUser)
             tempRow, tempCol = coordinatesFromInput(textInput)
             # select it if there is a piece
             # and it belongs to the player
@@ -125,8 +128,10 @@ while not someoneWins:
                 if (squareToCheck.player == player): ## && it can be moved - TODO
                     rowSelected = tempRow
                     colSelected = tempCol
+                else:
+                    print("Not your piece.")
             else:
-                print("You can't select this piece.")
+                print("No piece here.")
 
         # do a move - TODO must do at leat 1 move
         turnEnd = False
@@ -142,8 +147,11 @@ while not someoneWins:
                 if player.isFacingUp:
                     if (newRow == 0):
                         board[newRow][newCol].becomesKing()
+                        doesBecomeKing = True
                 else:
                     if (newRow == boardDimention):
                         board[newRow][newCol].becomesKing()
+                        doesBecomeKing = True
 
-        # store move - TODO
+        # store move
+        newMove = Move(board[newRow][newCol], (rowSelected - newRow, colSelected - newCol), doesBecomeKing)
