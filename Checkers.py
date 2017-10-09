@@ -143,7 +143,7 @@ while not someoneWins:
         rowSelected = ""
         colSelected = ""
         while rowSelected == "" and colSelected == "":
-            stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " >"
+            stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " > "
             textInput = input(stringToPrintToUser)
             tempRow, tempCol = coordinatesFromInput(textInput)
             # select it if there is a piece
@@ -160,6 +160,7 @@ while not someoneWins:
                 print("No piece here.")
 
         # do a move - TODO must do at leat 1 move
+        #           - TODO multiple moves!
         turnEnd = False
         while not turnEnd:
             textInput = input("Move to > ")
@@ -175,7 +176,7 @@ while not someoneWins:
                         board[newRow][newCol].becomesKing()
                         doesBecomeKing = True
                 else:
-                    if (newRow == boardDimention):
+                    if (newRow == boardDimension - 1):
                         board[newRow][newCol].becomesKing()
                         doesBecomeKing = True
 
