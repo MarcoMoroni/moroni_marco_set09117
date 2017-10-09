@@ -155,3 +155,4 @@ while not someoneWins:
 
         # store move
         newMove = Move(board[newRow][newCol], (rowSelected - newRow, colSelected - newCol), doesBecomeKing)
+        moves.append(newMove)
