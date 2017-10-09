@@ -219,7 +219,7 @@ while not someoneWins:
             else:
                 print("No piece here.")
         
-        # do a move - TODO must do at leat 1 move
+        # do a move
         #           - TODO multiple moves!
         # Note: the move is legal (already checked)
         turnEnd = False
@@ -232,7 +232,7 @@ while not someoneWins:
                 displacement = temporaryDisplacement
                 board[newRow][newCol] = board[rowSelected][colSelected]
                 board[rowSelected][colSelected] = emptySquare
-                # eat NOT WORKING
+                # eat
                 # if the displacement is (+-2, +-2)
                 if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
                     board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
@@ -248,5 +248,5 @@ while not someoneWins:
                 print("Not a legal move.")
 
         # store move
-        newMove = Move(board[newRow][newCol], (rowSelected - newRow, colSelected - newCol), doesBecomeKing)
+        newMove = Move(board[newRow][newCol], displacement, doesBecomeKing)
         moves.append(newMove)
