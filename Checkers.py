@@ -16,7 +16,7 @@ def printBoard():
     
     # create the line for col number
     line = "    "
-    for i in range(boardDimension):
+    for i in range(boardDimention):
         line += "  " + str(i) + " "
     # print the col number
     print(line + "\n")
@@ -25,9 +25,9 @@ def printBoard():
     firstLine = "    ┌"
     line = "    ├"
     lastLine = "    └"
-    for i in range(boardDimension):
+    for i in range(boardDimention):
         # different divider if last one
-        if i < boardDimension - 1:
+        if i < boardDimention - 1:
             firstLine += "───┬"
             line += "───┼"
             lastLine += "───┴"
@@ -50,7 +50,7 @@ def printBoard():
             else:
                 print("│   ", end='')
         # different divider if last divider line
-        if rowNo < boardDimension - 1:
+        if rowNo < boardDimention - 1:
             print("│\n" + line)
         else:
             print("│\n" + lastLine)
@@ -82,7 +82,7 @@ class Piece:
 
 
 
-# turn class
+# move class
 class Move:
 
     def __init__(self, piece, displacement, doesBecomeKing=False):
@@ -103,10 +103,45 @@ def coordinatesFromInput(text):
 
 
 
+# return all available displacements
+def possibleDisplacements(coordinates):
+    
+    possibleDisplacements = []
+
+    row = coordinates[0]
+    col = coordinates[1]
+    player = board[row][col].player
+
+    # displacements to check
+    displacementsToCheck = []
+    # different if the player is facing up:
+    # need to *-1 the row if facing up
+    mult = 1
+    if player.isFacingUp:
+        mult = -1
+    displacementsToCheck.append((1 * mult, -1))
+    displacementsToCheck.append((1 * mult, 1))
+    displacementsToCheck.append((2 * mult, -2))
+    displacementsToCheck.append((2 * mult, 2))
+    if board[row][col].rank == PieceRank.KING:
+        displacementsToCheck.append((-1 * mult, -1))
+        displacementsToCheck.append((-1 * mult, 1))
+        displacementsToCheck.append((-2 * mult, -2))
+        displacementsToCheck.append((-2 * mult, 2))
+
+    # keep the legal moves only
+    for d in displacementsToCheck:
+        # if is (+-1, +-1) check only if you can go there
+        if 
+
+    return possibleDisplacements
+
+
+
 # create board
-boardDimension = 8
-emptySquareChar = "e"
-board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
+boardDimention = 8
+emptySquare = "empty"
+board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
 
 # create players
 human = Player(["○", "□"], True)
@@ -118,11 +153,11 @@ players.append(cpu)
 # pieces setup
 for player in players:
     for row in range(3):
-        for col in range(boardDimension):
+        for col in range(boardDimention):
             if (col + row) % 2 == 0:
                 newPiece = Piece(player)
                 if player.isFacingUp:
-                    newPiece.initialPosition = (boardDimension - 1 - (boardDimension + row), boardDimension - 1 - (boardDimension + col))
+                    newPiece.initialPosition = (boardDimention - 1 - (boardDimention + row), boardDimention - 1 - (boardDimention + col))
                 else:
                     newPiece.initialPosition = (row, col)
                 board[newPiece.initialPosition[0]][newPiece.initialPosition[1]] = newPiece
@@ -159,6 +194,9 @@ while not someoneWins:
             else:
                 print("No piece here.")
 
+        ######## TEST
+        print(possibleDisplacements((rowSelected, colSelected)))
+        
         # do a move - TODO must do at leat 1 move
         #           - TODO multiple moves!
         turnEnd = False
@@ -168,17 +206,15 @@ while not someoneWins:
             # if its a legal move
             if True: # TODO
                 board[newRow][newCol] = board[rowSelected][colSelected] # IS THIS A COPY?
-                board[rowSelected][colSelected] = emptySquareChar
+                board[rowSelected][colSelected] = emptySquare
                 turnEnd = True
                 # become king
-                if player.isFacingUp:
-                    if (newRow == 0):
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
-                else:
-                    if (newRow == boardDimension - 1):
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
+                if player.isFacingUp and newRow == 0:
+                    board[newRow][newCol].becomesKing()
+                    doesBecomeKing = True
+                elif newRow == boardDimention - 1:
+                    board[newRow][newCol].becomesKing()
+                    doesBecomeKing = True
 
         # store move
         newMove = Move(board[newRow][newCol], (rowSelected - newRow, colSelected - newCol), doesBecomeKing)
