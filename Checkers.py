@@ -129,17 +129,17 @@ def legalDisplacements(coordinates):
 
     # keep the legal moves only
     legalDisplacements = possibleDisplacements[:]
-    print("  possibleDisplacements =", possibleDisplacements)
+    #print("  possibleDisplacements =", possibleDisplacements)
     for d in possibleDisplacements:
-        print("  checking", d, row + d[0], col + d[1], "...")
+        #print("  checking", d, row + d[0], col + d[1], "...")
         # check if it's inside the board
         if not (0 <= row + d[0] < boardDimention and 0 <= col + d[1] < boardDimention):
-            print("    out of board")
+            #print("    out of board")
             legalDisplacements.remove(d)
         else:
             # check if it's occupied
             if type(board[row + d[0]][col + d[1]]) is Piece:
-                print("    occupied")
+                #print("    occupied")
                 legalDisplacements.remove(d)
             else:
                 # if it is (+2, +-2) is valid only if it eats an opponent piece
@@ -147,13 +147,13 @@ def legalDisplacements(coordinates):
                 if abs(d[0]) == 2 and abs(d[1]) == 2:
                     if type(middleSquare) is Piece:
                         if middleSquare.player == player:
-                            print("    can't eat yourself")
+                            #print("    can't eat yourself")
                             legalDisplacements.remove(d)
                     else:
-                        print("    nothing to eat")
+                        #print("    nothing to eat")
                         legalDisplacements.remove(d)
 
-    print("  legalDisplacements =", legalDisplacements)   
+    #print("  legalDisplacements =", legalDisplacements)   
     return legalDisplacements
 
 
@@ -221,16 +221,16 @@ while not someoneWins:
         
         # do a move - TODO must do at leat 1 move
         #           - TODO multiple moves!
-        #           - TODO eat!
         # Note: the move is legal (already checked)
         turnEnd = False
         while not turnEnd:
             textInput = input("Move to > ")
             newRow, newCol = coordinatesFromInput(textInput)
+            temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
             # if its a legal move
-            if True: # TODO
-                displacement = (newRow - rowSelected, newCol - colSelected)
-                board[newRow][newCol] = board[rowSelected][colSelected] # IS THIS A COPY?
+            if temporaryDisplacement in legalDisplacements((tempRow, tempCol)):
+                displacement = temporaryDisplacement
+                board[newRow][newCol] = board[rowSelected][colSelected]
                 board[rowSelected][colSelected] = emptySquare
                 # eat NOT WORKING
                 # if the displacement is (+-2, +-2)
@@ -244,6 +244,8 @@ while not someoneWins:
                     board[newRow][newCol].becomesKing()
                     doesBecomeKing = True
                 turnEnd = True
+            else:
+                print("Not a legal move.")
 
         # store move
         newMove = Move(board[newRow][newCol], (rowSelected - newRow, colSelected - newCol), doesBecomeKing)
