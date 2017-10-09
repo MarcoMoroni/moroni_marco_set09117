@@ -13,28 +13,53 @@ class PieceRank(Enum):
 
 # print board
 def printBoard():
+    
     # create the line for col number
     line = "    "
     for i in range(boardDimension):
         line += "  " + str(i) + " "
-    # print the first line
+    # print the col number
     print(line + "\n")
+
     # create the line to visually divide the squares
-    line = "    ."
+    line = "    ┌"
     for i in range(boardDimension):
-        line += "   ."
+        # different divider if last one
+        if i < boardDimension - 1:
+            line += "───┬"
+        else:
+            line += "───┐"
     # print the first line
     print(line)
+    
+    # create the line to visually divide the squares
+    line = "    ├"
+    lastLine = "    └"
+    for i in range(boardDimension):
+        # different divider if last one
+        if i < boardDimension - 1:
+            line += "───┼"
+            lastLine += "───┴"
+        else:
+            line += "───┤"
+            lastLine += "───┘"
+    
     # print everithing else
     for rowNo,row in enumerate(board):
+        # print row number
         print(rowNo, end="   ")
         for square in row:
             if (type(square) is Piece):
                 # print the symbol of the piece depending on the rank
-                print("  " + square.player.symbols[square.rank] + " ", end='')
+                print("│ " + square.player.symbols[square.rank] + " ", end='')
             else:
-                print("    ", end='')
-        print("\n" + line)
+                print("│   ", end='')
+        # different divider if last divider line
+        if rowNo < boardDimension - 1:
+            print("│\n" + line)
+        else:
+            print("│\n" + lastLine)
+            
 
 
 
