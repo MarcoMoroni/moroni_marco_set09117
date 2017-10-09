@@ -20,29 +20,24 @@ def printBoard():
         line += "  " + str(i) + " "
     # print the col number
     print(line + "\n")
-
-    # create the line to visually divide the squares
-    line = "    ┌"
-    for i in range(boardDimension):
-        # different divider if last one
-        if i < boardDimension - 1:
-            line += "───┬"
-        else:
-            line += "───┐"
-    # print the first line
-    print(line)
     
     # create the line to visually divide the squares
+    firstLine = "    ┌"
     line = "    ├"
     lastLine = "    └"
     for i in range(boardDimension):
         # different divider if last one
         if i < boardDimension - 1:
+            firstLine += "───┬"
             line += "───┼"
             lastLine += "───┴"
         else:
+            firstLine += "───┐"
             line += "───┤"
             lastLine += "───┘"
+
+    # print the first line
+    print(firstLine)
     
     # print everithing else
     for rowNo,row in enumerate(board):
