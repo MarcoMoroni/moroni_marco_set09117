@@ -12,7 +12,7 @@ class PieceRank(Enum):
 
 
 # print board
-def printBoard():
+def printBoard(higlights=[]):
     
     # create the line for col number
     line = "    "
@@ -40,13 +40,15 @@ def printBoard():
     print(firstLine)
     
     # print everithing else
-    for rowNo,row in enumerate(board):
+    for rowNo, row in enumerate(board):
         # print row number
         print(rowNo, end="   ")
-        for square in row:
+        for colNo, square in enumerate(row):
             if (type(square) is Piece):
                 # print the symbol of the piece depending on the rank
                 print("│ " + square.player.symbols[square.rank] + " ", end='')
+            elif (rowNo, colNo) in higlights:
+                print("│ ∙ ", end='')
             else:
                 print("│   ", end='')
         # different divider if last divider line
@@ -104,7 +106,7 @@ def coordinatesFromInput(text):
 
 
 # return all available displacements
-def legalDisplacements(coordinates):
+def getLegalDisplacements(coordinates):
     
     possibleDisplacements = []
 
@@ -128,19 +130,19 @@ def legalDisplacements(coordinates):
         possibleDisplacements.append((-2 * mult, 2))
 
     # keep the legal moves only
-    legalDisplacements = possibleDisplacements[:]
+    getLegalDisplacements = possibleDisplacements[:]
     #print("  possibleDisplacements =", possibleDisplacements)
     for d in possibleDisplacements:
         #print("  checking", d, row + d[0], col + d[1], "...")
         # check if it's inside the board
         if not (0 <= row + d[0] < boardDimention and 0 <= col + d[1] < boardDimention):
             #print("    out of board")
-            legalDisplacements.remove(d)
+            getLegalDisplacements.remove(d)
         else:
             # check if it's occupied
             if type(board[row + d[0]][col + d[1]]) is Piece:
                 #print("    occupied")
-                legalDisplacements.remove(d)
+                getLegalDisplacements.remove(d)
             else:
                 # if it is (+2, +-2) is valid only if it eats an opponent piece
                 middleSquare = board[row + (int(d[0] / 2))][col + (int(d[1] / 2))]
@@ -148,13 +150,13 @@ def legalDisplacements(coordinates):
                     if type(middleSquare) is Piece:
                         if middleSquare.player == player:
                             #print("    can't eat yourself")
-                            legalDisplacements.remove(d)
+                            getLegalDisplacements.remove(d)
                     else:
                         #print("    nothing to eat")
-                        legalDisplacements.remove(d)
+                        getLegalDisplacements.remove(d)
 
-    #print("  legalDisplacements =", legalDisplacements)   
-    return legalDisplacements
+    #print("  getLegalDisplacements =", getLegalDisplacements)   
+    return getLegalDisplacements
 
 
 
@@ -209,7 +211,7 @@ while not someoneWins:
             squareToCheck = board[tempRow][tempCol]
             if (type(squareToCheck) is Piece):
                 if (squareToCheck.player == player):
-                    if not legalDisplacements((tempRow, tempCol)) == []:
+                    if not getLegalDisplacements((tempRow, tempCol)) == []:
                         rowSelected = tempRow
                         colSelected = tempCol
                     else:
@@ -224,11 +226,13 @@ while not someoneWins:
         # Note: the move is legal (already checked)
         turnEnd = False
         while not turnEnd:
+            legalDisplacements = getLegalDisplacements((tempRow, tempCol))
+            printBoard([(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
             textInput = input("Move to > ")
             newRow, newCol = coordinatesFromInput(textInput)
             temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
             # if its a legal move
-            if temporaryDisplacement in legalDisplacements((tempRow, tempCol)):
+            if temporaryDisplacement in legalDisplacements:
                 displacement = temporaryDisplacement
                 board[newRow][newCol] = board[rowSelected][colSelected]
                 board[rowSelected][colSelected] = emptySquare
