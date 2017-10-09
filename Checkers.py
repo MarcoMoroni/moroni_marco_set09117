@@ -109,8 +109,8 @@ emptySquareChar = "e"
 board = [[emptySquareChar for col in range(boardDimension)] for row in range(boardDimension)]
 
 # create players
-human = Player(["o", "O"], True)
-cpu = Player(["x", "X"])
+human = Player(["○", "□"], True)
+cpu = Player(["●", "■"])
 players = []
 players.append(human)
 players.append(cpu)
