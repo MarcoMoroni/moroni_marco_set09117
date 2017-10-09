@@ -130,10 +130,26 @@ def possibleDisplacements(coordinates):
         displacementsToCheck.append((-2 * mult, 2))
 
     # keep the legal moves only
-    for d in displacementsToCheck:
-        # if is (+-1, +-1) check only if you can go there
-        if 
-
+    for d in displacementsToCheck:   
+        # check if it's inside the board
+        if 0 <= row + d[0] < boardDimention and 0 <= col + d[1] < boardDimention:
+            # check if the place is occupied
+            if type(board[row + d[0]][col + d[1]]) is Piece:
+                # keep it (if it's (+-1,+-1))
+                # if it is (+2, +-2) is valid only if it eats an opponent piece
+                if abs(d[0]) == 2 and abs(d[1]) == 2:
+                    if type(board[row + (d[0] / abs(d[0]))][col + (d[1] / abs(d[1]))]) is Piece:
+                        if not board[row + (d[0] / abs(d[0]))][col + (d[1] / abs(d[1]))].player == player:
+                            # keep it
+                        else:
+                            displacementsToCheck.remove(d)
+                    else:
+                        displacementsToCheck.remove(d)
+            else:
+                displacementsToCheck.remove(d)
+        else:
+            displacementsToCheck.remove(d)
+            
     return possibleDisplacements
 
 
