@@ -104,7 +104,7 @@ def coordinatesFromInput(text):
 
 
 # return all available displacements
-def possibleDisplacements(coordinates):
+def legalDisplacements(coordinates):
     
     possibleDisplacements = []
 
@@ -192,7 +192,9 @@ while not someoneWins:
 
         printBoard()
 
-        doesBecomeKing = False # for storing move
+        # for storing move
+        doesBecomeKing = False
+        displacement = (0, 0)
     
         # select a piece in a square
         rowSelected = ""
@@ -207,7 +209,7 @@ while not someoneWins:
             squareToCheck = board[tempRow][tempCol]
             if (type(squareToCheck) is Piece):
                 if (squareToCheck.player == player):
-                    if not possibleDisplacements((tempRow, tempCol)) == []:
+                    if not legalDisplacements((tempRow, tempCol)) == []:
                         rowSelected = tempRow
                         colSelected = tempCol
                     else:
@@ -220,15 +222,20 @@ while not someoneWins:
         # do a move - TODO must do at leat 1 move
         #           - TODO multiple moves!
         #           - TODO eat!
+        # Note: the move is legal (already checked)
         turnEnd = False
         while not turnEnd:
             textInput = input("Move to > ")
             newRow, newCol = coordinatesFromInput(textInput)
             # if its a legal move
             if True: # TODO
+                displacement = (newRow - rowSelected, newCol - colSelected)
                 board[newRow][newCol] = board[rowSelected][colSelected] # IS THIS A COPY?
                 board[rowSelected][colSelected] = emptySquare
-                turnEnd = True
+                # eat NOT WORKING
+                # if the displacement is (+-2, +-2)
+                if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                    board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
                 # become king
                 if player.isFacingUp and newRow == 0:
                     board[newRow][newCol].becomesKing()
@@ -236,6 +243,7 @@ while not someoneWins:
                 elif newRow == boardDimention - 1:
                     board[newRow][newCol].becomesKing()
                     doesBecomeKing = True
+                turnEnd = True
 
         # store move
         newMove = Move(board[newRow][newCol], (rowSelected - newRow, colSelected - newCol), doesBecomeKing)
