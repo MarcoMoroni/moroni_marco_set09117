@@ -87,13 +87,16 @@ class Piece:
     def becomesKing(self):
         self.rank = PieceRank.KING
 
+    def undoBecomingKing(self):
+        self.rank = PieceRank.MAN
+
 
 
 # move class
 class Move:
 
-    def __init__(self, piece, displacement, doesBecomeKing=False):
-        self.piece = piece
+    def __init__(self, originPosition, displacement, doesBecomeKing=False):
+        self.originPosition = originPosition
         self.displacement = displacement
         # note: if displacement is (+-2,+-2) it means the pieace eats
         self.doesBecomeKing = doesBecomeKing
@@ -162,6 +165,27 @@ def getLegalDisplacements(coordinates):
 
     #print("  getLegalDisplacements =", getLegalDisplacements)   
     return getLegalDisplacements
+
+
+
+# undo
+del undo(move):
+
+    undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
+    
+    # undo position
+    board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
+
+##    # undo eat
+##    if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
+##        middleSquare = board[move.originPosition[0] - int(move.displacement[0] / 2)][move.originPosition[1] - int(move.displacement[1] / 2)]
+##        ##### TODO - Move needs to store the piece eaten, so I can know its rank
+##        newPiece = Piece()
+##        middlesquare = newPiece
+
+    # undo becoming king
+    if move.doesBecomeKing:
+        board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
 
 
 
@@ -259,5 +283,6 @@ while not someoneWins:
                 print("Not a legal move.")
 
         # STORE MOVE
-        newMove = Move(board[newRow][newCol], displacement, doesBecomeKing)
+        newMove = Move((rowSelected, colSelected), displacement, doesBecomeKing)
         moves.append(newMove)
+        #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
