@@ -53,7 +53,7 @@ def printBoard(selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
                     print("│ " + square.player.symbols[square.rank] + " ", end='')
             elif (rowNo, colNo) in legalMovesHighlights:
                 # highlight legal moves
-                print("│ ∙ ", end='')
+                print("│▐█▌", end='')
             else:
                 print("│   ", end='')
         # different divider if last divider line
@@ -203,7 +203,7 @@ while not someoneWins:
         doesBecomeKing = False
         displacement = (0, 0)
     
-        # select a piece in a square
+        # SELECT A PIECE
         rowSelected = ""
         colSelected = ""
         while rowSelected == "" and colSelected == "":
@@ -225,14 +225,16 @@ while not someoneWins:
                     print("Not your piece.")
             else:
                 print("No piece here.")
-        
-        # do a move
+
+        # print borard with selection and availale moves
+        legalDisplacements = getLegalDisplacements((tempRow, tempCol))
+        printBoard((rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
+            
+        # DO A MOVE
         #           - TODO multiple moves!
         # Note: the move is legal (already checked)
         turnEnd = False
         while not turnEnd:
-            legalDisplacements = getLegalDisplacements((tempRow, tempCol))
-            printBoard((rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
             textInput = input("Move to > ")
             newRow, newCol = coordinatesFromInput(textInput)
             temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
@@ -256,6 +258,6 @@ while not someoneWins:
             else:
                 print("Not a legal move.")
 
-        # store move
+        # STORE MOVE
         newMove = Move(board[newRow][newCol], displacement, doesBecomeKing)
         moves.append(newMove)
