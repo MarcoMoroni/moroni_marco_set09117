@@ -12,7 +12,7 @@ class PieceRank(Enum):
 
 
 # print board
-def printBoard(higlights=[]):
+def printBoard(selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
     
     # create the line for col number
     line = "    "
@@ -46,8 +46,13 @@ def printBoard(higlights=[]):
         for colNo, square in enumerate(row):
             if (type(square) is Piece):
                 # print the symbol of the piece depending on the rank
-                print("│ " + square.player.symbols[square.rank] + " ", end='')
-            elif (rowNo, colNo) in higlights:
+                # also show if it is selected
+                if (rowNo, colNo) == selectedPieceHighlight:
+                    print("│(" + square.player.symbols[square.rank] + ")", end='')
+                else:
+                    print("│ " + square.player.symbols[square.rank] + " ", end='')
+            elif (rowNo, colNo) in legalMovesHighlights:
+                # highlight legal moves
                 print("│ ∙ ", end='')
             else:
                 print("│   ", end='')
@@ -227,7 +232,7 @@ while not someoneWins:
         turnEnd = False
         while not turnEnd:
             legalDisplacements = getLegalDisplacements((tempRow, tempCol))
-            printBoard([(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
+            printBoard((rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
             textInput = input("Move to > ")
             newRow, newCol = coordinatesFromInput(textInput)
             temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
