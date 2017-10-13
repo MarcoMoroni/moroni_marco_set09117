@@ -13,6 +13,9 @@ class PieceRank(Enum):
 
 # print board
 def printBoard(selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
+
+    print()
+    print()
     
     # create the line for col number
     line = "    "
@@ -61,6 +64,8 @@ def printBoard(selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
             print("│\n" + line)
         else:
             print("│\n" + lastLine)
+
+    print()
             
 
 
@@ -296,17 +301,17 @@ while not someoneWins:
             #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
 
             # check if turn is over
-            print("isFirstMove = False")
+            #print("isFirstMove = False")
             isFirstMove = False
             # select next square and check if there are possible moves
-            # only if you have eaten
+            # but only if you have eaten
             if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
                 rowSelected = newRow
                 colSelected = newCol
-                print("This turn you have eaten a piece.")
+                #print("This turn you have eaten a piece.")
                 if getLegalDisplacements((rowSelected, colSelected), isFirstMove) == []:
-                    print("No more pieces to eat.")
+                    #print("No more pieces to eat.")
                     turnIsOver = True
             else:
-                print("You did not eat this turn.")
+                #print("You did not eat this turn.")
                 turnIsOver = True
