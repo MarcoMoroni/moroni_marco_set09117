@@ -3,6 +3,7 @@
 ############
 
 
+import time
 
 from enum import Enum
 class PieceRank(Enum):
@@ -231,6 +232,46 @@ def setupPieces():
 
 
 
+# replay
+def replay(moves):
+
+    timeToWait = 1.5
+
+    # board     
+    board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
+    # ...
+
+    printBoard()
+    time.sleep(timeToWait)
+
+    # create a list of moves
+    movesToReplay = moves[:]
+    
+    # invert moves list
+    movesToReplay.reverse()
+
+    # replay
+    while not movesToReplay == []:
+        moveToReplay = movesToReplay.pop()
+
+        # move piece
+        board[movesToReplay.originPosition[0] + movesToReplay.displacement[0]][movesToReplay.originPosition[1] + movesToReplay.displacement[1]] = board[movesToReplay.originPosition[0]][movesToReplay.originPosition[1]]
+        board[movesToReplay.originPosition[0]][movesToReplay.originPosition[1]] = emptySquare
+
+        # eat
+        if abs(movesToReplay.displacement[0]) == 2 and abs(movesToReplay.displacement[1]) == 2:
+            board[movesToReplay.originPosition[0] + int(displacement[0] / 2)][movesToReplay.originPosition[0] + int(movesToReplay.displacement[1] / 2)] = movesToReplay.pieceEaten
+
+        # become king
+        if movesToReplay.doesBecomeKing:
+            board[movesToReplay.originPosition[0] + movesToReplay.displacement[0]][movesToReplay.originPosition[1] + movesToReplay.displacement[1]].becomesKing()
+
+        time.sleep(timeToWait)
+
+    print("Replay ended.")
+
+
+
 # create board
 boardDimention = 8
 emptySquare = "empty"
@@ -263,6 +304,10 @@ while not someoneWins:
         while rowSelected == "" and colSelected == "":
             stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " > "
             textInput = input(stringToPrintToUser)
+            # TEST - replay ##############################################################
+            if textInput == "r" or textInput == "replay":
+                replay(moves)
+            ##############################################################################
             tempRow, tempCol = coordinatesFromInput(textInput)
             # select it if there is a piece
             # and it belongs to the player
@@ -355,3 +400,8 @@ print()
 print()
 print(starred("Player " + winningPlayer.symbols[PieceRank.MAN] + " win!"))
 print()
+
+# ask for replay
+replayRequested = input("Would you like to replay the game? (y/n)")
+if (replayRequested == "y"):
+    replay(moves)
