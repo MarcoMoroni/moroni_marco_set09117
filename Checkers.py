@@ -13,7 +13,7 @@ class PieceRank(Enum):
 
 
 # print board
-def printBoard(selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
+def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
 
     print()
     print()
@@ -101,7 +101,7 @@ class Piece:
 # move class
 class Move:
 
-    def __init__(self, originPosition, displacement, pieceEaten="", doesBecomeKing=False):
+    def __init__(self, originPosition, displacement, pieceEaten=None, doesBecomeKing=False):
         self.originPosition = originPosition
         self.displacement = displacement
         # note: if displacement is (+-2,+-2) it means the pieace eats
@@ -198,7 +198,7 @@ def undo(move):
 
 # check victory
 def checkVictory(player):
-    virctory = True
+    victory = True
     for row in board:
         for square in row:
             if type(square) is Piece:
@@ -218,7 +218,7 @@ def starred(message):
 
 
 # setup pieces
-def setupPieces():
+def setupPieces(board):
     for player in players:
         for row in range(3):
             for col in range(boardDimention):
@@ -239,9 +239,9 @@ def replay(moves):
 
     # board     
     board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
-    # ...
+    setupPieces(board)
 
-    printBoard()
+    printBoard(board)
     time.sleep(timeToWait)
 
     # create a list of moves
@@ -255,17 +255,19 @@ def replay(moves):
         moveToReplay = movesToReplay.pop()
 
         # move piece
-        board[movesToReplay.originPosition[0] + movesToReplay.displacement[0]][movesToReplay.originPosition[1] + movesToReplay.displacement[1]] = board[movesToReplay.originPosition[0]][movesToReplay.originPosition[1]]
-        board[movesToReplay.originPosition[0]][movesToReplay.originPosition[1]] = emptySquare
+        print("Moving " + str(moveToReplay.originPosition[0]), str(moveToReplay.originPosition[1]) + " by " + str(moveToReplay.displacement[0]), str(moveToReplay.displacement[1]))
+        board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]] = board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]]
+        board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]] = emptySquare
 
         # eat
-        if abs(movesToReplay.displacement[0]) == 2 and abs(movesToReplay.displacement[1]) == 2:
-            board[movesToReplay.originPosition[0] + int(displacement[0] / 2)][movesToReplay.originPosition[0] + int(movesToReplay.displacement[1] / 2)] = movesToReplay.pieceEaten
+        if abs(moveToReplay.displacement[0]) == 2 and abs(moveToReplay.displacement[1]) == 2:
+            board[moveToReplay.originPosition[0] + int(displacement[0] / 2)][moveToReplay.originPosition[0] + int(moveToReplay.displacement[1] / 2)] = moveToReplay.pieceEaten
 
         # become king
-        if movesToReplay.doesBecomeKing:
-            board[movesToReplay.originPosition[0] + movesToReplay.displacement[0]][movesToReplay.originPosition[1] + movesToReplay.displacement[1]].becomesKing()
+        if moveToReplay.doesBecomeKing:
+            board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]].becomesKing()
 
+        printBoard(board)
         time.sleep(timeToWait)
 
     print("Replay ended.")
@@ -274,7 +276,7 @@ def replay(moves):
 
 # create board
 boardDimention = 8
-emptySquare = "empty"
+emptySquare = None
 board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
 
 # create players
@@ -285,7 +287,7 @@ players.append(human)
 players.append(cpu)
 
 # pieces setup
-setupPieces()
+setupPieces(board)
 
 # create a history of moves
 moves = []
@@ -296,12 +298,12 @@ someoneWins = False
 while not someoneWins:
     for player in players:
 
-        printBoard()   
+        printBoard(board=board)   
     
         # SELECT A PIECE
-        rowSelected = ""
-        colSelected = ""
-        while rowSelected == "" and colSelected == "":
+        rowSelected = None
+        colSelected = None
+        while rowSelected == None and colSelected == None:
             stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " > "
             textInput = input(stringToPrintToUser)
             # TEST - replay ##############################################################
@@ -333,11 +335,11 @@ while not someoneWins:
             # for storing move
             doesBecomeKing = False
             displacement = (0, 0)
-            pieceEaten = ""
+            pieceEaten = None
 
             # print borard with selection and availale moves
             legalDisplacements = getLegalDisplacements((rowSelected, colSelected), isFirstMove)
-            printBoard((rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
+            printBoard(board, (rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
                 
             # DO A MOVE
             # Note: the move is legal (already checked)
