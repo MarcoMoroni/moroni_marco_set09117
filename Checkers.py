@@ -115,7 +115,7 @@ def coordinatesFromInput(text):
 
 
 # return all available displacements
-def getLegalDisplacements(coordinates):
+def getLegalDisplacements(coordinates, isFirstMove=True):
     
     possibleDisplacements = []
 
@@ -128,13 +128,16 @@ def getLegalDisplacements(coordinates):
     mult = 1
     if player.isFacingUp:
         mult = -1
-    possibleDisplacements.append((1 * mult, -1))
-    possibleDisplacements.append((1 * mult, 1))
+    # if it's not first move you can only move by (+-2, +-2)
+    if isFirstMove:
+        possibleDisplacements.append((1 * mult, -1))
+        possibleDisplacements.append((1 * mult, 1))
     possibleDisplacements.append((2 * mult, -2))
     possibleDisplacements.append((2 * mult, 2))
     if board[row][col].rank == PieceRank.KING:
-        possibleDisplacements.append((-1 * mult, -1))
-        possibleDisplacements.append((-1 * mult, 1))
+        if isFirstMove:
+            possibleDisplacements.append((-1 * mult, -1))
+            possibleDisplacements.append((-1 * mult, 1))
         possibleDisplacements.append((-2 * mult, -2))
         possibleDisplacements.append((-2 * mult, 2))
 
@@ -225,6 +228,8 @@ while not someoneWins:
         doesBecomeKing = False
         displacement = (0, 0)
         pieceEaten = ""
+
+        
     
         # SELECT A PIECE
         rowSelected = ""
@@ -249,40 +254,55 @@ while not someoneWins:
             else:
                 print("No piece here.")
 
-        # print borard with selection and availale moves
-        legalDisplacements = getLegalDisplacements((tempRow, tempCol))
-        printBoard((rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
-            
-        # DO A MOVE
-        #           - TODO multiple moves!
-        # Note: the move is legal (already checked)
-        turnEnd = False
-        while not turnEnd:
-            textInput = input("Move to > ")
-            newRow, newCol = coordinatesFromInput(textInput)
-            temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
-            # if its a legal move
-            if temporaryDisplacement in legalDisplacements:
-                displacement = temporaryDisplacement
-                board[newRow][newCol] = board[rowSelected][colSelected]
-                board[rowSelected][colSelected] = emptySquare
-                # eat
-                # if the displacement is (+-2, +-2)
-                if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
-                    pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
-                    board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
-                # become king
-                if player.isFacingUp and newRow == 0:
-                    board[newRow][newCol].becomesKing()
-                    doesBecomeKing = True
-                elif newRow == boardDimention - 1:
-                    board[newRow][newCol].becomesKing()
-                    doesBecomeKing = True
-                turnEnd = True
-            else:
-                print("Not a legal move.")
+        # TURN (multiple moves)
+        isFirstMove = True
+        turnIsOver = False
+        while not turnIsOver:
 
-        # STORE MOVE
-        newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
-        moves.append(newMove)
-        #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
+            # print borard with selection and availale moves
+            legalDisplacements = getLegalDisplacements((tempRow, tempCol), isFirstMove)
+            printBoard((rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
+                
+            # DO A MOVE
+            #           - TODO multiple moves!
+            # Note: the move is legal (already checked)
+            newRow, newCol = -1, -1
+            moveExecuted = False
+            while not moveExecuted:
+                textInput = input("Move to > ")
+                newRow, newCol = coordinatesFromInput(textInput)
+                temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
+                # if its a legal move
+                if temporaryDisplacement in legalDisplacements:
+                    displacement = temporaryDisplacement
+                    board[newRow][newCol] = board[rowSelected][colSelected]
+                    board[rowSelected][colSelected] = emptySquare
+                    # eat
+                    # if the displacement is (+-2, +-2)
+                    if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                        pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
+                        board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
+                    # become king
+                    if player.isFacingUp and newRow == 0:
+                        board[newRow][newCol].becomesKing()
+                        doesBecomeKing = True
+                    elif newRow == boardDimention - 1:
+                        board[newRow][newCol].becomesKing()
+                        doesBecomeKing = True
+                    moveExecuted = True
+                else:
+                    print("Not a legal move.")
+
+            # STORE MOVE
+            newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
+            moves.append(newMove)
+            #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
+
+            # check if turn is over
+            print("isFirstMove = False")
+            isFirstMove = False
+            rowSelected = newRow
+            colSelected = newCol
+            if getLegalDisplacements((rowSelected, colSelected), isFirstMove) == []:
+                print("turnIsOver = True")
+                turnIsOver = True
