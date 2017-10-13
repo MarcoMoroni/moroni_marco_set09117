@@ -147,19 +147,19 @@ def getLegalDisplacements(coordinates, isFirstMove=True):
         possibleDisplacements.append((-2 * mult, 2))
 
     # keep the legal moves only
-    getLegalDisplacements = possibleDisplacements[:]
+    legalDisplacements = possibleDisplacements[:]
     #print("  possibleDisplacements =", possibleDisplacements)
     for d in possibleDisplacements:
         #print("  checking", d, row + d[0], col + d[1], "...")
         # check if it's inside the board
         if not (0 <= row + d[0] < boardDimention and 0 <= col + d[1] < boardDimention):
             #print("    out of board")
-            getLegalDisplacements.remove(d)
+            legalDisplacements.remove(d)
         else:
             # check if it's occupied
             if type(board[row + d[0]][col + d[1]]) is Piece:
                 #print("    occupied")
-                getLegalDisplacements.remove(d)
+                legalDisplacements.remove(d)
             else:
                 # if it is (+2, +-2) is valid only if it eats an opponent piece
                 middleSquare = board[row + (int(d[0] / 2))][col + (int(d[1] / 2))]
@@ -167,13 +167,13 @@ def getLegalDisplacements(coordinates, isFirstMove=True):
                     if type(middleSquare) is Piece:
                         if middleSquare.player == player:
                             #print("    can't eat yourself")
-                            getLegalDisplacements.remove(d)
+                            legalDisplacements.remove(d)
                     else:
                         #print("    nothing to eat")
-                        getLegalDisplacements.remove(d)
+                        legalDisplacements.remove(d)
 
-    #print("  getLegalDisplacements =", getLegalDisplacements)   
-    return getLegalDisplacements
+    #print("  legalDisplacements =", legalDisplacements)   
+    return legalDisplacements
 
 
 
