@@ -195,6 +195,27 @@ def undo(move):
 
 
 
+# check victory
+def checkVictory(player):
+    virctory = True
+    for row in board:
+        for square in row:
+            if type(square) is Piece:
+                if not square.player == player:
+                    victory = False
+    return victory
+
+
+
+# starred string
+def starred(message):
+    starLine = "****"
+    for i in message:
+        starLine += "*"
+    return(starLine + "\n" + "* " + message + " *\n" +starLine)
+
+
+
 # create board
 boardDimention = 8
 emptySquare = "empty"
@@ -223,6 +244,7 @@ for player in players:
 moves = []
 
 # game loop
+winningPlayer = ""
 someoneWins = False
 while not someoneWins:
     for player in players:
@@ -300,6 +322,12 @@ while not someoneWins:
             moves.append(newMove)
             #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
 
+            # check if you win (only if you eat)
+            if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                if checkVictory(player):
+                    someoneWins = True
+                    winningPlayer = player
+
             # check if turn is over
             #print("isFirstMove = False")
             isFirstMove = False
@@ -315,3 +343,9 @@ while not someoneWins:
             else:
                 #print("You did not eat this turn.")
                 turnIsOver = True
+
+# someone wins
+print()
+print()
+print(starred("Player " + winningPlayer.symbols[PieceRank.MAN] + " win!"))
+print()
