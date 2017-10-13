@@ -222,14 +222,7 @@ someoneWins = False
 while not someoneWins:
     for player in players:
 
-        printBoard()
-
-        # for storing move
-        doesBecomeKing = False
-        displacement = (0, 0)
-        pieceEaten = ""
-
-        
+        printBoard()   
     
         # SELECT A PIECE
         rowSelected = ""
@@ -259,12 +252,16 @@ while not someoneWins:
         turnIsOver = False
         while not turnIsOver:
 
+            # for storing move
+            doesBecomeKing = False
+            displacement = (0, 0)
+            pieceEaten = ""
+
             # print borard with selection and availale moves
-            legalDisplacements = getLegalDisplacements((tempRow, tempCol), isFirstMove)
+            legalDisplacements = getLegalDisplacements((rowSelected, colSelected), isFirstMove)
             printBoard((rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
                 
             # DO A MOVE
-            #           - TODO multiple moves!
             # Note: the move is legal (already checked)
             newRow, newCol = -1, -1
             moveExecuted = False
@@ -301,8 +298,15 @@ while not someoneWins:
             # check if turn is over
             print("isFirstMove = False")
             isFirstMove = False
-            rowSelected = newRow
-            colSelected = newCol
-            if getLegalDisplacements((rowSelected, colSelected), isFirstMove) == []:
-                print("turnIsOver = True")
+            # select next square and check if there are possible moves
+            # only if you have eaten
+            if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                rowSelected = newRow
+                colSelected = newCol
+                print("This turn you have eaten a piece.")
+                if getLegalDisplacements((rowSelected, colSelected), isFirstMove) == []:
+                    print("No more pieces to eat.")
+                    turnIsOver = True
+            else:
+                print("You did not eat this turn.")
                 turnIsOver = True
