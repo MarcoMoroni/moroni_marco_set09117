@@ -255,7 +255,7 @@ def replay(moves):
         moveToReplay = movesToReplay.pop()
 
         # move piece
-        print("Moving " + str(moveToReplay.originPosition[0]), str(moveToReplay.originPosition[1]) + " by " + str(moveToReplay.displacement[0]), str(moveToReplay.displacement[1]))
+        #print("Moving " + str(moveToReplay.originPosition[0]), str(moveToReplay.originPosition[1]) + " by " + str(moveToReplay.displacement[0]), str(moveToReplay.displacement[1]))
         board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]] = board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]]
         board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]] = emptySquare
 
@@ -306,10 +306,6 @@ while not someoneWins:
         while rowSelected == None and colSelected == None:
             stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " > "
             textInput = input(stringToPrintToUser)
-            # TEST - replay ##############################################################
-            if textInput == "r" or textInput == "replay":
-                replay(moves)
-            ##############################################################################
             tempRow, tempCol = coordinatesFromInput(textInput)
             # select it if there is a piece
             # and it belongs to the player
