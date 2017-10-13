@@ -216,6 +216,21 @@ def starred(message):
 
 
 
+# setup pieces
+def setupPieces():
+    for player in players:
+        for row in range(3):
+            for col in range(boardDimention):
+                if (col + row) % 2 == 0:
+                    newPiece = Piece(player)
+                    if player.isFacingUp:
+                        newPiece.initialPosition = (boardDimention - 1 - (boardDimention + row), boardDimention - 1 - (boardDimention + col))
+                    else:
+                        newPiece.initialPosition = (row, col)
+                    board[newPiece.initialPosition[0]][newPiece.initialPosition[1]] = newPiece
+
+
+
 # create board
 boardDimention = 8
 emptySquare = "empty"
@@ -229,16 +244,7 @@ players.append(human)
 players.append(cpu)
 
 # pieces setup
-for player in players:
-    for row in range(3):
-        for col in range(boardDimention):
-            if (col + row) % 2 == 0:
-                newPiece = Piece(player)
-                if player.isFacingUp:
-                    newPiece.initialPosition = (boardDimention - 1 - (boardDimention + row), boardDimention - 1 - (boardDimention + col))
-                else:
-                    newPiece.initialPosition = (row, col)
-                board[newPiece.initialPosition[0]][newPiece.initialPosition[1]] = newPiece
+setupPieces()
 
 # create a history of moves
 moves = []
