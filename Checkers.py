@@ -95,10 +95,11 @@ class Piece:
 # move class
 class Move:
 
-    def __init__(self, originPosition, displacement, doesBecomeKing=False):
+    def __init__(self, originPosition, displacement, pieceEaten="", doesBecomeKing=False):
         self.originPosition = originPosition
         self.displacement = displacement
         # note: if displacement is (+-2,+-2) it means the pieace eats
+        self.pieceEaten = pieceEaten
         self.doesBecomeKing = doesBecomeKing
 
 
@@ -169,19 +170,16 @@ def getLegalDisplacements(coordinates):
 
 
 # undo
-del undo(move):
+def undo(move):
 
     undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
     
     # undo position
     board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
 
-##    # undo eat
-##    if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
-##        middleSquare = board[move.originPosition[0] - int(move.displacement[0] / 2)][move.originPosition[1] - int(move.displacement[1] / 2)]
-##        ##### TODO - Move needs to store the piece eaten, so I can know its rank
-##        newPiece = Piece()
-##        middlesquare = newPiece
+    # undo eat
+    if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
+        board[move.originPosition[0] - int(move.displacement[0] / 2)][move.originPosition[1] - int(move.displacement[1] / 2)] = pieceEaten
 
     # undo becoming king
     if move.doesBecomeKing:
@@ -226,6 +224,7 @@ while not someoneWins:
         # for storing move
         doesBecomeKing = False
         displacement = (0, 0)
+        pieceEaten = ""
     
         # SELECT A PIECE
         rowSelected = ""
@@ -270,6 +269,7 @@ while not someoneWins:
                 # eat
                 # if the displacement is (+-2, +-2)
                 if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                    pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
                     board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
                 # become king
                 if player.isFacingUp and newRow == 0:
@@ -283,6 +283,6 @@ while not someoneWins:
                 print("Not a legal move.")
 
         # STORE MOVE
-        newMove = Move((rowSelected, colSelected), displacement, doesBecomeKing)
+        newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
         moves.append(newMove)
         #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
