@@ -172,7 +172,7 @@ def getLegalDisplacements(coordinates, isFirstMove=True):
                     else:
                         #print("    nothing to eat")
                         legalDisplacements.remove(d)
-
+    
     #print("  legalDisplacements =", legalDisplacements)   
     return legalDisplacements
 
@@ -293,7 +293,7 @@ setupPieces(board)
 moves = []
 
 # game loop
-winningPlayer = ""
+winningPlayer = None
 someoneWins = False
 while not someoneWins:
     for player in players:
@@ -345,7 +345,7 @@ while not someoneWins:
                 textInput = input("Move to > ")
                 newRow, newCol = coordinatesFromInput(textInput)
                 temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
-                # if its a legal move
+                # if it's a legal move
                 if temporaryDisplacement in legalDisplacements:
                     displacement = temporaryDisplacement
                     board[newRow][newCol] = board[rowSelected][colSelected]
