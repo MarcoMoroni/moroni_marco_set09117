@@ -246,13 +246,10 @@ def replay(moves):
 
     # create a list of moves
     movesToReplay = moves[:]
-    
-    # invert moves list
-    movesToReplay.reverse()
 
     # replay
     while not movesToReplay == []:
-        moveToReplay = movesToReplay.pop()
+        moveToReplay = movesToReplay.pop(0)
 
         # move piece
         #print("Moving " + str(moveToReplay.originPosition[0]), str(moveToReplay.originPosition[1]) + " by " + str(moveToReplay.displacement[0]), str(moveToReplay.displacement[1]))
