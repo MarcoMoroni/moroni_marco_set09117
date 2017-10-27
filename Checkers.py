@@ -320,7 +320,7 @@ while not someoneWins:
             else:
                 print("No piece here.")
 
-        # TURN (multiple moves)
+        # MOVES
         isFirstMove = True
         turnIsOver = False
         while not turnIsOver:
