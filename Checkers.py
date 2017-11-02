@@ -207,6 +207,9 @@ def undo(movesNo):
 
         move = moves.pop();
 
+        # push move to redo
+        redoMoves.append(move);
+
         undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
         
         # undo position
@@ -222,6 +225,32 @@ def undo(movesNo):
 
         # empty the "from" square
         board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = emptySquare
+
+
+
+# redo
+def redo(movesNo):
+
+    for moveNo in range(movesNo):
+
+        move = redoMoves.pop();
+
+        # push move to undo
+        moves.append(move);
+        
+        # redo position
+        board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = board[move.originPosition[0]][move.originPosition[1]]
+
+        # redo eat
+        if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
+           board[move.originPosition[0] + move.displacement[0] + int(displacement[0] / 2)][move.originPosition[1] + move.displacement[1] + int(displacement[1] / 2)] = emptySquare
+
+        # redo becoming king
+        if move.doesBecomeKing:
+            board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]].becomesKing()
+
+        # empty the "from" square
+        board[move.originPosition[0]][move.originPosition[1]] = emptySquare
 
 
 
@@ -318,6 +347,9 @@ setupPieces(board)
 # create a history of moves
 moves = []
 
+# create a history of undone moves
+redoMoves = []
+
 # game loop
 winningPlayer = None
 someoneWins = False
@@ -329,11 +361,12 @@ while not someoneWins:
         rowSelected = None
         colSelected = None
         movesToUndo = None
+        movesToRedo = None
 
         # SELECT AN ACTION (move, undo, etc.)
         actionSelected = None;
         while actionSelected == None:
-            actionToChek = input("Player " + player.symbols[PieceRank.MAN] + " (move r c, undo x) > ")
+            actionToChek = input("Player " + player.symbols[PieceRank.MAN] + " (move r c, undo x, redo x) > ")
             # spilt actionToChek
             actionToChek = actionToChek.split()
             # check if the the input is valid
@@ -367,6 +400,20 @@ while not someoneWins:
                         if movesToUndo <= len(moves) and not movesToUndo == 0:
                             print("Undo valid.")
                             actionSelected = ActionType.UNDO
+                        else:
+                            print("Not a valid number of moves.")
+                    else:
+                        print("Number of moves must be a number.")
+                else:
+                    print("Wrong number of arguments.")
+            elif actionToChek[0] == "r" or actionToChek == "redo":
+                # Check if you can redo
+                if len(actionToChek) == 2:
+                    movesToRedo = int(actionToChek[1])
+                    if isinstance(movesToRedo, int):
+                        if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
+                            print("Undo valid.")
+                            actionSelected = ActionType.REDO
                         else:
                             print("Not a valid number of moves.")
                     else:
@@ -480,6 +527,14 @@ while not someoneWins:
             # UNDO
             print("Do undo...")
             undo(movesToUndo)
+
+
+        elif actionSelected == ActionType.REDO:
+
+
+            # REDO
+            print("Do redo...")
+            redo(movesToRedo)
         
 
 
