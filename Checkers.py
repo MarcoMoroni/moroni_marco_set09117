@@ -13,6 +13,7 @@ class ActionType(Enum):
     MOVE = 0
     UNDO = 1
     REDO = 2
+    REPLAY = 3
 
 
 
@@ -291,39 +292,55 @@ def setupPieces(board):
 
 
 # replay
-def replay(moves):
+def replay():
 
     timeToWait = 1.5
 
-    # board     
-    board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
-    setupPieces(board)
+##    # board     
+##    board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
+##    setupPieces(board)
+##
+##    printBoard(board)
+##    time.sleep(timeToWait)
+##
+##    # create a list of moves
+##    movesToReplay = moves[:]
+##
+##    # replay
+##    while not movesToReplay == []:
+##        moveToReplay = movesToReplay.pop(0)
+##
+##        # move piece
+##        #print("Moving " + str(moveToReplay.originPosition[0]), str(moveToReplay.originPosition[1]) + " by " + str(moveToReplay.displacement[0]), str(moveToReplay.displacement[1]))
+##        board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]] = board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]]
+##        board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]] = emptySquare
+##
+##        # eat
+##        if abs(moveToReplay.displacement[0]) == 2 and abs(moveToReplay.displacement[1]) == 2:
+##            board[moveToReplay.originPosition[0] + int(displacement[0] / 2)][moveToReplay.originPosition[0] + int(moveToReplay.displacement[1] / 2)] = moveToReplay.pieceEaten
+##
+##        # become king
+##        if moveToReplay.doesBecomeKing:
+##            board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]].becomesKing()
+##
+##        printBoard(board)
+##        time.sleep(timeToWait)
 
+    totalNumberOfMoves = len(moves)
+    # need to use this, or I have problem in for loops
+
+    # undo everything
+    undo(totalNumberOfMoves)
     printBoard(board)
     time.sleep(timeToWait)
+    print("Replay...")
 
-    # create a list of moves
-    movesToReplay = moves[:]
-
-    # replay
-    while not movesToReplay == []:
-        moveToReplay = movesToReplay.pop(0)
-
-        # move piece
-        #print("Moving " + str(moveToReplay.originPosition[0]), str(moveToReplay.originPosition[1]) + " by " + str(moveToReplay.displacement[0]), str(moveToReplay.displacement[1]))
-        board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]] = board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]]
-        board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]] = emptySquare
-
-        # eat
-        if abs(moveToReplay.displacement[0]) == 2 and abs(moveToReplay.displacement[1]) == 2:
-            board[moveToReplay.originPosition[0] + int(displacement[0] / 2)][moveToReplay.originPosition[0] + int(moveToReplay.displacement[1] / 2)] = moveToReplay.pieceEaten
-
-        # become king
-        if moveToReplay.doesBecomeKing:
-            board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]].becomesKing()
-
+    # redo eveything, but wait and show every moves
+    for moveToRedo in range(totalNumberOfMoves):
+        redo(1)
         printBoard(board)
         time.sleep(timeToWait)
+        print("Replay...")
 
     print("Replay ended.")
 
@@ -366,7 +383,7 @@ while not someoneWins:
         # SELECT AN ACTION (move, undo, etc.)
         actionSelected = None;
         while actionSelected == None:
-            actionToChek = input("Player " + player.symbols[PieceRank.MAN] + " (move r c, undo x, redo x) > ")
+            actionToChek = input("Player " + player.symbols[PieceRank.MAN] + " ([m]ove r c, [u]ndo x, [r]edo x, [replay]) > ")
             # spilt actionToChek
             actionToChek = actionToChek.split()
             # check if the the input is valid
@@ -418,6 +435,12 @@ while not someoneWins:
                             print("Not a valid number of moves.")
                     else:
                         print("Number of moves must be a number.")
+                else:
+                    print("Wrong number of arguments.")
+            elif actionToChek[0] == "replay":
+                # Check if you can replay
+                if len(actionToChek) == 1:
+                    actionSelected = ActionType.REPLAY
                 else:
                     print("Wrong number of arguments.")
             else:
@@ -527,7 +550,6 @@ while not someoneWins:
 
 
             # UNDO
-            print("Do undo...")
             undo(movesToUndo)
 
 
@@ -535,8 +557,14 @@ while not someoneWins:
 
 
             # REDO
-            print("Do redo...")
             redo(movesToRedo)
+
+
+        elif actionSelected == ActionType.REPLAY:
+
+
+            # REPLAY
+            replay()
         
 
 
@@ -549,4 +577,4 @@ print()
 # ask for replay
 replayRequested = input("Would you like to replay the game? (y/n)")
 if (replayRequested == "y"):
-    replay(moves)
+    replay()
