@@ -183,20 +183,45 @@ def getLegalDisplacements(coordinates, isFirstMove=True):
 
 
 # undo
-def undo(move):
+##def undo(move):
+##
+##    undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
+##    
+##    # undo position
+##    board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
+##
+##    # undo eat
+##    if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
+##        board[move.originPosition[0] - int(move.displacement[0] / 2)][move.originPosition[1] - int(move.displacement[1] / 2)] = pieceEaten
+##
+##    # undo becoming king
+##    if move.doesBecomeKing:
+##        board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
 
-    undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
-    
-    # undo position
-    board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
 
-    # undo eat
-    if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
-        board[move.originPosition[0] - int(move.displacement[0] / 2)][move.originPosition[1] - int(move.displacement[1] / 2)] = pieceEaten
 
-    # undo becoming king
-    if move.doesBecomeKing:
-        board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
+# undo
+def undo(movesNo):
+
+    for moveNo in range(movesNo):
+
+        move = moves.pop();
+
+        undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
+        
+        # undo position
+        board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
+
+        # undo eat
+        if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
+            board[move.originPosition[0] - int(move.displacement[0] / 2)][move.originPosition[1] - int(move.displacement[1] / 2)] = pieceEaten
+
+        # undo becoming king
+        if move.doesBecomeKing:
+            board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
+
+        # empty the "from" square
+        board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = emptySquare
 
 
 
@@ -303,6 +328,7 @@ while not someoneWins:
 
         rowSelected = None
         colSelected = None
+        movesToUndo = None
 
         # SELECT AN ACTION (move, undo, etc.)
         actionSelected = None;
@@ -453,6 +479,7 @@ while not someoneWins:
 
             # UNDO
             print("Do undo...")
+            undo(movesToUndo)
         
 
 
