@@ -20,7 +20,7 @@ class ActionType(Enum):
 # print board
 def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
 
-    topMarginChars = 30 
+    topMarginChars = 10 
     leftMarginChars = 10
     bottomMarginChars = 5
 
@@ -452,13 +452,13 @@ while not someoneWins:
                 else:
                     print("Number of moves must be a number.")
             else:
-                print("Wrong number of arguments.")
+                print("Redo not valid.")
         elif actionToChek[0] == "replay":
             # Check if you can replay
             if len(actionToChek) == 1:
                 actionSelected = ActionType.REPLAY
             else:
-                print("Redo not valid.")
+                print("Input not valid.")
         else:
             print("Input not valid.")
 
@@ -576,7 +576,8 @@ while not someoneWins:
         undo(movesToUndo)
 
         # CHANGE PLAYER
-        #player == board[redoMoves[-1].originPosition[0]][redoMoves[-1].originPosition[1]].player
+        print("Changing player to player like the one in " + str(redoMoves[-1].originPosition[0]), str(redoMoves[-1].originPosition[1]))
+        player = board[redoMoves[-1].originPosition[0]][redoMoves[-1].originPosition[1]].player
 
     elif actionSelected == ActionType.REDO:
 
@@ -585,7 +586,8 @@ while not someoneWins:
         redo(movesToRedo)
 
         # CHANGE PLAYER
-        #player == board[moves[-1].originPosition[0] - moves[-1].displacement[0]][moves[-1].originPosition[1] - moves[-1].displacement[1]].player
+        print("Changing player to player like the one in " + str(moves[-1].originPosition[0] - moves[-1].displacement[0]), str(moves[-1].originPosition[1] - moves[-1].displacement[1]))
+        player = board[moves[-1].originPosition[0] - moves[-1].displacement[0]][moves[-1].originPosition[1] - moves[-1].displacement[1]].player
 
     elif actionSelected == ActionType.REPLAY:
 
