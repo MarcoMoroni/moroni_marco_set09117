@@ -20,7 +20,7 @@ class ActionType(Enum):
 # print board
 def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
 
-    topMarginChars = 20 
+    topMarginChars = 30 
     leftMarginChars = 10
     bottomMarginChars = 5
 
@@ -423,7 +423,10 @@ while not someoneWins:
                 print("Wrong number of arguments.")
         elif actionToChek[0] == "u" or actionToChek == "undo":
             # Check if you can undo
-            if len(actionToChek) == 2:
+            if len(actionToChek) == 1 and len(moves) > 0:
+                movesToUndo = 1
+                actionSelected = ActionType.UNDO
+            elif len(actionToChek) == 2:
                 movesToUndo = int(actionToChek[1])
                 if isinstance(movesToUndo, int):
                     if movesToUndo <= len(moves) and not movesToUndo == 0:
@@ -433,10 +436,13 @@ while not someoneWins:
                 else:
                     print("Number of moves must be a number.")
             else:
-                print("Wrong number of arguments.")
+                print("Undo not valid.")
         elif actionToChek[0] == "r" or actionToChek == "redo":
             # Check if you can redo
-            if len(actionToChek) == 2:
+            if len(actionToChek) == 1 and len(redoMoves) > 0:
+                movesToRedo = 1
+                actionSelected = ActionType.REDO
+            elif len(actionToChek) == 2:
                 movesToRedo = int(actionToChek[1])
                 if isinstance(movesToRedo, int):
                     if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
@@ -452,7 +458,7 @@ while not someoneWins:
             if len(actionToChek) == 1:
                 actionSelected = ActionType.REPLAY
             else:
-                print("Wrong number of arguments.")
+                print("Redo not valid.")
         else:
             print("Input not valid.")
 
@@ -570,7 +576,7 @@ while not someoneWins:
         undo(movesToUndo)
 
         # CHANGE PLAYER
-        player == board[redoMoves[-1].originPosition[0]][redoMoves[-1].originPosition[1]].player
+        #player == board[redoMoves[-1].originPosition[0]][redoMoves[-1].originPosition[1]].player
 
     elif actionSelected == ActionType.REDO:
 
@@ -579,7 +585,7 @@ while not someoneWins:
         redo(movesToRedo)
 
         # CHANGE PLAYER
-        player == board[moves[-1].originPosition[0] - moves[-1].displacement[0]][moves[-1].originPosition[1] - moves[-1].displacement[1]].player
+        #player == board[moves[-1].originPosition[0] - moves[-1].displacement[0]][moves[-1].originPosition[1] - moves[-1].displacement[1]].player
 
     elif actionSelected == ActionType.REPLAY:
 
