@@ -20,11 +20,21 @@ class ActionType(Enum):
 # print board
 def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
 
-    print()
-    print()
+    topMarginChars = 20 
+    leftMarginChars = 10
+    bottomMarginChars = 5
+
+    # top margin
+    for l in range(topMarginChars):
+        print()
+
+    # left margin
+    leftMargin = ""
+    for l in range(leftMarginChars):
+        leftMargin += " "
     
     # create the line for col number
-    line = "    "
+    line = leftMargin + "    "
     for i in range(boardDimention):
         line += "  " + str(i) + " "
     # print the col number
@@ -46,12 +56,12 @@ def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
             lastLine += "───┘"
 
     # print the first line
-    print(firstLine)
+    print(leftMargin + firstLine)
     
     # print everithing else
     for rowNo, row in enumerate(board):
         # print row number
-        print(rowNo, end="   ")
+        print(leftMargin + str(rowNo), end="   ")
         for colNo, square in enumerate(row):
             if (type(square) is Piece):
                 # print the symbol of the piece depending on the rank
@@ -67,11 +77,13 @@ def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
                 print("│   ", end='')
         # different divider if last divider line
         if rowNo < boardDimention - 1:
-            print("│\n" + line)
+            print("│\n" + leftMargin + line)
         else:
-            print("│\n" + lastLine)
+            print("│\n" + leftMargin + lastLine)
 
-    print()
+    # bottom margin
+    for l in range(bottomMarginChars):
+        print()
             
 
 
@@ -211,7 +223,7 @@ def undo(movesNo):
         # push move to redo
         redoMoves.append(move);
 
-        undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
+        undoPosition = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
         
         # undo position
         board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
@@ -415,7 +427,6 @@ while not someoneWins:
                 movesToUndo = int(actionToChek[1])
                 if isinstance(movesToUndo, int):
                     if movesToUndo <= len(moves) and not movesToUndo == 0:
-                        print("Undo valid.")
                         actionSelected = ActionType.UNDO
                     else:
                         print("Not a valid number of moves.")
@@ -429,7 +440,6 @@ while not someoneWins:
                 movesToRedo = int(actionToChek[1])
                 if isinstance(movesToRedo, int):
                     if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
-                        print("Undo valid.")
                         actionSelected = ActionType.REDO
                     else:
                         print("Not a valid number of moves.")
@@ -560,7 +570,7 @@ while not someoneWins:
         undo(movesToUndo)
 
         # CHANGE PLAYER
-        # ...
+        player == board[redoMoves[-1].originPosition[0]][redoMoves[-1].originPosition[1]].player
 
     elif actionSelected == ActionType.REDO:
 
@@ -569,7 +579,7 @@ while not someoneWins:
         redo(movesToRedo)
 
         # CHANGE PLAYER
-        # ...
+        player == board[moves[-1].originPosition[0] - moves[-1].displacement[0]][moves[-1].originPosition[1] - moves[-1].displacement[1]].player
 
     elif actionSelected == ActionType.REPLAY:
 
