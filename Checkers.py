@@ -125,7 +125,7 @@ def coordinatesFromInput(text):
 
 
 # return all available displacements
-def getLegalDisplacements(coordinates, isFirstMove=True):
+def getLegalDisplacements(coordinates, mustEat=True):
     
     possibleDisplacements = []
 
@@ -139,13 +139,13 @@ def getLegalDisplacements(coordinates, isFirstMove=True):
     if player.isFacingUp:
         mult = -1
     # if it's not first move you can only move by (+-2, +-2)
-    if isFirstMove:
+    if mustEat:
         possibleDisplacements.append((1 * mult, -1))
         possibleDisplacements.append((1 * mult, 1))
     possibleDisplacements.append((2 * mult, -2))
     possibleDisplacements.append((2 * mult, 2))
     if board[row][col].rank == PieceRank.KING:
-        if isFirstMove:
+        if mustEat:
             possibleDisplacements.append((-1 * mult, -1))
             possibleDisplacements.append((-1 * mult, 1))
         possibleDisplacements.append((-2 * mult, -2))
@@ -451,7 +451,7 @@ while not someoneWins:
 
             
             # MOVES
-            isFirstMove = True
+            mustEat = True
             turnIsOver = False
             while not turnIsOver:
 
@@ -461,7 +461,7 @@ while not someoneWins:
                 pieceEaten = None
 
                 # print borard with selection and availale moves
-                legalDisplacements = getLegalDisplacements((rowSelected, colSelected), isFirstMove)
+                legalDisplacements = getLegalDisplacements((rowSelected, colSelected), mustEat)
                 printBoard(board, (rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
                     
                 # DO A MOVE
@@ -497,6 +497,8 @@ while not someoneWins:
                 newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
                 moves.append(newMove)
                 #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
+                # empty redoMoves
+                redoMoves = []
 
                 # check if you win (only if you eat)
                 if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
@@ -505,15 +507,15 @@ while not someoneWins:
                         winningPlayer = player
 
                 # check if turn is over
-                #print("isFirstMove = False")
-                isFirstMove = False
+                #print("mustEat = False")
+                mustEat = False
                 # select next square and check if there are possible moves
                 # but only if you have eaten
                 if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
                     rowSelected = newRow
                     colSelected = newCol
                     #print("This turn you have eaten a piece.")
-                    if getLegalDisplacements((rowSelected, colSelected), isFirstMove) == []:
+                    if getLegalDisplacements((rowSelected, colSelected), mustEat) == []:
                         #print("No more pieces to eat.")
                         turnIsOver = True
                 else:
