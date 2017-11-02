@@ -9,6 +9,10 @@ from enum import Enum
 class PieceRank(Enum):
     MAN = 0
     KING = 1
+class ActionType(Enum):
+    MOVE = 0
+    UNDO = 1
+    REDO = 2
 
 
 
@@ -295,100 +299,162 @@ someoneWins = False
 while not someoneWins:
     for player in players:
 
-        printBoard(board=board)   
-    
-        # SELECT A PIECE
+        printBoard(board=board)
+
         rowSelected = None
         colSelected = None
-        while rowSelected == None and colSelected == None:
-            stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " > "
-            textInput = input(stringToPrintToUser)
-            tempRow, tempCol = coordinatesFromInput(textInput)
-            # select it if there is a piece
-            # and it belongs to the player
-            # and it can be moved
-            squareToCheck = board[tempRow][tempCol]
-            if (type(squareToCheck) is Piece):
-                if (squareToCheck.player == player):
-                    if not getLegalDisplacements((tempRow, tempCol)) == []:
-                        rowSelected = tempRow
-                        colSelected = tempCol
+
+        # SELECT AN ACTION (move, undo, etc.)
+        actionSelected = None;
+        while actionSelected == None:
+            actionToChek = input("Player " + player.symbols[PieceRank.MAN] + " (move r c, undo x) > ")
+            # spilt actionToChek
+            actionToChek = actionToChek.split()
+            # check if the the input is valid
+            if actionToChek[0] == "m" or actionToChek == "move":
+                # Check if you can move
+                if len(actionToChek) == 3:
+                    tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
+                    if isinstance(tempRow, int) and isinstance(tempCol, int):
+                        squareToCheck = board[tempRow][tempCol]
+                        if (type(squareToCheck) is Piece):
+                            if (squareToCheck.player == player):
+                                if not getLegalDisplacements((tempRow, tempCol)) == []:
+                                    rowSelected = tempRow
+                                    colSelected = tempCol
+                                    actionSelected = ActionType.MOVE
+                                else:
+                                    print("This piece can't move.")
+                            else:
+                                print("Not your piece.")
+                        else:
+                            print("No piece here.")
                     else:
-                        print("This piece can't move.")
+                        print("Coordinates must be numbers.")
                 else:
-                    print("Not your piece.")
+                    print("Wrong number of arguments.")
+            elif actionToChek[0] == "u" or actionToChek == "undo":
+                # Check if you can undo
+                if len(actionToChek) == 2:
+                    movesToUndo = int(actionToChek[1])
+                    if isinstance(movesToUndo, int):
+                        if movesToUndo <= len(moves) and not movesToUndo == 0:
+                            print("Undo valid.")
+                            actionSelected = ActionType.UNDO
+                        else:
+                            print("Not a valid number of moves.")
+                    else:
+                        print("Number of moves must be a number.")
+                else:
+                    print("Wrong number of arguments.")
             else:
-                print("No piece here.")
+                print("Input not valid.")
+    
+        # SELECT A PIECE
+##        rowSelected = None
+##        colSelected = None
+##        while rowSelected == None and colSelected == None:
+##            stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " > "
+##            textInput = input(stringToPrintToUser)
+##            tempRow, tempCol = coordinatesFromInput(textInput)
+##            # select it if there is a piece
+##            # and it belongs to the player
+##            # and it can be moved
+##            squareToCheck = board[tempRow][tempCol]
+##            if (type(squareToCheck) is Piece):
+##                if (squareToCheck.player == player):
+##                    if not getLegalDisplacements((tempRow, tempCol)) == []:
+##                        rowSelected = tempRow
+##                        colSelected = tempCol
+##                    else:
+##                        print("This piece can't move.")
+##                else:
+##                    print("Not your piece.")
+##            else:
+##                print("No piece here.")
 
-        # MOVES
-        isFirstMove = True
-        turnIsOver = False
-        while not turnIsOver:
+        # DO ACTION
+        if actionSelected == ActionType.MOVE:
 
-            # for storing move
-            doesBecomeKing = False
-            displacement = (0, 0)
-            pieceEaten = None
+            
+            # MOVES
+            isFirstMove = True
+            turnIsOver = False
+            while not turnIsOver:
 
-            # print borard with selection and availale moves
-            legalDisplacements = getLegalDisplacements((rowSelected, colSelected), isFirstMove)
-            printBoard(board, (rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
-                
-            # DO A MOVE
-            # Note: the move is legal (already checked)
-            newRow, newCol = -1, -1
-            moveExecuted = False
-            while not moveExecuted:
-                textInput = input("Move to > ")
-                newRow, newCol = coordinatesFromInput(textInput)
-                temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
-                # if it's a legal move
-                if temporaryDisplacement in legalDisplacements:
-                    displacement = temporaryDisplacement
-                    board[newRow][newCol] = board[rowSelected][colSelected]
-                    board[rowSelected][colSelected] = emptySquare
-                    # eat
-                    # if the displacement is (+-2, +-2)
-                    if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
-                        pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
-                        board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
-                    # become king
-                    if player.isFacingUp and newRow == 0:
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
-                    elif newRow == boardDimention - 1:
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
-                    moveExecuted = True
+                # for storing move
+                doesBecomeKing = False
+                displacement = (0, 0)
+                pieceEaten = None
+
+                # print borard with selection and availale moves
+                legalDisplacements = getLegalDisplacements((rowSelected, colSelected), isFirstMove)
+                printBoard(board, (rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
+                    
+                # DO A MOVE
+                # Note: the move is legal (already checked)
+                newRow, newCol = -1, -1
+                moveExecuted = False
+                while not moveExecuted:
+                    textInput = input("Move to > ")
+                    newRow, newCol = coordinatesFromInput(textInput)
+                    temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
+                    # if it's a legal move
+                    if temporaryDisplacement in legalDisplacements:
+                        displacement = temporaryDisplacement
+                        board[newRow][newCol] = board[rowSelected][colSelected]
+                        board[rowSelected][colSelected] = emptySquare
+                        # eat
+                        # if the displacement is (+-2, +-2)
+                        if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                            pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
+                            board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
+                        # become king
+                        if player.isFacingUp and newRow == 0:
+                            board[newRow][newCol].becomesKing()
+                            doesBecomeKing = True
+                        elif newRow == boardDimention - 1:
+                            board[newRow][newCol].becomesKing()
+                            doesBecomeKing = True
+                        moveExecuted = True
+                    else:
+                        print("Not a legal move.")
+
+                # STORE MOVE
+                newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
+                moves.append(newMove)
+                #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
+
+                # check if you win (only if you eat)
+                if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                    if checkVictory(player):
+                        someoneWins = True
+                        winningPlayer = player
+
+                # check if turn is over
+                #print("isFirstMove = False")
+                isFirstMove = False
+                # select next square and check if there are possible moves
+                # but only if you have eaten
+                if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                    rowSelected = newRow
+                    colSelected = newCol
+                    #print("This turn you have eaten a piece.")
+                    if getLegalDisplacements((rowSelected, colSelected), isFirstMove) == []:
+                        #print("No more pieces to eat.")
+                        turnIsOver = True
                 else:
-                    print("Not a legal move.")
-
-            # STORE MOVE
-            newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
-            moves.append(newMove)
-            #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
-
-            # check if you win (only if you eat)
-            if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
-                if checkVictory(player):
-                    someoneWins = True
-                    winningPlayer = player
-
-            # check if turn is over
-            #print("isFirstMove = False")
-            isFirstMove = False
-            # select next square and check if there are possible moves
-            # but only if you have eaten
-            if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
-                rowSelected = newRow
-                colSelected = newCol
-                #print("This turn you have eaten a piece.")
-                if getLegalDisplacements((rowSelected, colSelected), isFirstMove) == []:
-                    #print("No more pieces to eat.")
+                    #print("You did not eat this turn.")
                     turnIsOver = True
-            else:
-                #print("You did not eat this turn.")
-                turnIsOver = True
+
+                
+        elif actionSelected == ActionType.UNDO:
+
+
+            # UNDO
+            print("Do undo...")
+        
+
 
 # someone wins
 print()
