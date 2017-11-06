@@ -4,6 +4,7 @@
 
 
 import time
+import random
 
 from enum import Enum
 class PieceRank(Enum):
@@ -97,6 +98,20 @@ class Player:
         # remember the player side on the board
         self.isFacingUp = isFacingUp
         self.cpu = cpu
+
+    def cpuSelectPiece(self, mustEat):
+        coordinatesThatCanBeSelected = []
+        for rowNo, row in enumerate(board):
+            for colNo, square in enumerate(row):
+                if type(square) is Piece:
+                    if square.player == self and not getLegalDisplacements((rowNo, colNo), mustEat) == []:
+                        coordinatesThatCanBeSelected.append(((rowNo, colNo)))
+        #print("coordinatesThatCanBeSelected = " + str(coordinatesThatCanBeSelected))
+        return random.choice(coordinatesThatCanBeSelected)
+
+    def cpuSelectDisplacement(self, displacements):
+        return random.choice(displacements)
+        
 
 
 
@@ -370,6 +385,7 @@ p2 = Player(["●", "■"])
 players = []
 players.append(p1)
 players.append(p2)
+timeToWait = 1.5
 
 for player in players:
     validInput = False
@@ -381,6 +397,8 @@ for player in players:
         elif i == "c" or i == "cpu":
             player.cpu = True
             validInput = True
+        else:
+            print("Input not valid.")
 
 # pieces setup
 setupPieces(board)
@@ -420,86 +438,94 @@ while not someoneWins:
 
     # SELECT AN ACTION (move, undo, etc.)
     actionSelected = None;
-    while actionSelected == None:
-        print()
-        print("Player " + player.symbols[PieceRank.MAN])
-        if mustEat:
-            print("Note: you must eat")
-        actionToChek = input("([m]ove r c / [u]ndo x / [r]edo x / [replay]) > ")
-        # spilt actionToChek into arguments
-        actionToChek = actionToChek.split()
-        # check if the the input is valid
-        if actionToChek[0] == "m" or actionToChek == "move":
-            # Check if you can move
-            if len(actionToChek) == 3:
-                try:
-                    tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
-                except ValueError:
-                    print("Coordinates must be numbers.")
-                    continue
-                else:
-                    tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
-                    squareToCheck = board[tempRow][tempCol]
-                    if (type(squareToCheck) is Piece):
-                        if (squareToCheck.player == player):
-                            if not getLegalDisplacements((tempRow, tempCol), mustEat) == []:
-                                rowSelected = tempRow
-                                colSelected = tempCol
-                                actionSelected = ActionType.MOVE
+    # if human, select action
+    if player.cpu == False:
+        while actionSelected == None:
+            print()
+            print("Player " + player.symbols[PieceRank.MAN])
+            if mustEat:
+                print("Note: you must eat")
+            actionToChek = input("([m]ove r c / [u]ndo x / [r]edo x / [replay]) > ")
+            # spilt actionToChek into arguments
+            actionToChek = actionToChek.split()
+            # check if the the input is valid
+            if actionToChek[0] == "m" or actionToChek == "move":
+                # Check if you can move
+                if len(actionToChek) == 3:
+                    try:
+                        tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
+                    except ValueError:
+                        print("Coordinates must be numbers.")
+                        continue
+                    else:
+                        tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
+                        squareToCheck = board[tempRow][tempCol]
+                        if (type(squareToCheck) is Piece):
+                            if (squareToCheck.player == player):
+                                if not getLegalDisplacements((tempRow, tempCol), mustEat) == []:
+                                    rowSelected = tempRow
+                                    colSelected = tempCol
+                                    actionSelected = ActionType.MOVE
+                                else:
+                                    print("This piece can't move.")
                             else:
-                                print("This piece can't move.")
+                                print("Not your piece.")
                         else:
-                            print("Not your piece.")
-                    else:
-                        print("No piece here.")
-            else:
-                print("Wrong number of arguments.")
-        elif actionToChek[0] == "u" or actionToChek == "undo":
-            # Check if you can undo
-            if len(actionToChek) == 1 and len(moves) > 0:
-                movesToUndo = 1
-                actionSelected = ActionType.UNDO
-            elif len(actionToChek) == 2:
-                try:
-                    movesToUndo = int(actionToChek[1])
-                except ValueError:
-                    print("Number of moves must be a number.")
-                    continue
+                            print("No piece here.")
                 else:
-                    movesToUndo = int(actionToChek[1])
-                    if movesToUndo <= len(moves) and not movesToUndo == 0:
-                        actionSelected = ActionType.UNDO
+                    print("Wrong number of arguments.")
+            elif actionToChek[0] == "u" or actionToChek == "undo":
+                # Check if you can undo
+                if len(actionToChek) == 1 and len(moves) > 0:
+                    movesToUndo = 1
+                    actionSelected = ActionType.UNDO
+                elif len(actionToChek) == 2:
+                    try:
+                        movesToUndo = int(actionToChek[1])
+                    except ValueError:
+                        print("Number of moves must be a number.")
+                        continue
                     else:
-                        print("Not a valid number of moves.")
-            else:
-                print("Undo not valid.")
-        elif actionToChek[0] == "r" or actionToChek == "redo":
-            # Check if you can redo
-            if len(actionToChek) == 1 and len(redoMoves) > 0:
-                movesToRedo = 1
-                actionSelected = ActionType.REDO
-            elif len(actionToChek) == 2:
-                try:
-                    movesToRedo = int(actionToChek[1])
-                except ValueError:
-                    print("Number of moves must be a number.")
-                    continue
+                        movesToUndo = int(actionToChek[1])
+                        if movesToUndo <= len(moves) and not movesToUndo == 0:
+                            actionSelected = ActionType.UNDO
+                        else:
+                            print("Not a valid number of moves.")
                 else:
-                    movesToRedo = int(actionToChek[1])
-                    if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
-                        actionSelected = ActionType.REDO
+                    print("Undo not valid.")
+            elif actionToChek[0] == "r" or actionToChek == "redo":
+                # Check if you can redo
+                if len(actionToChek) == 1 and len(redoMoves) > 0:
+                    movesToRedo = 1
+                    actionSelected = ActionType.REDO
+                elif len(actionToChek) == 2:
+                    try:
+                        movesToRedo = int(actionToChek[1])
+                    except ValueError:
+                        print("Number of moves must be a number.")
+                        continue
                     else:
-                        print("Not a valid number of moves.")
-            else:
-                print("Redo not valid.")
-        elif actionToChek[0] == "replay":
-            # Check if you can replay
-            if len(actionToChek) == 1:
-                actionSelected = ActionType.REPLAY
+                        movesToRedo = int(actionToChek[1])
+                        if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
+                            actionSelected = ActionType.REDO
+                        else:
+                            print("Not a valid number of moves.")
+                else:
+                    print("Redo not valid.")
+            elif actionToChek[0] == "replay":
+                # Check if you can replay
+                if len(actionToChek) == 1:
+                    actionSelected = ActionType.REPLAY
+                else:
+                    print("Input not valid.")
             else:
                 print("Input not valid.")
-        else:
-            print("Input not valid.")
+    # else if cpu, can only move
+    else:
+        print("Player " + player.symbols[PieceRank.MAN] + " is thinking...")
+        rowSelected, colSelected = player.cpuSelectPiece(mustEat)
+        actionSelected = ActionType.MOVE
+        time.sleep(timeToWait)
 
     # SELECT A PIECE
 ##        rowSelected = None
@@ -546,35 +572,46 @@ while not someoneWins:
             newRow, newCol = -1, -1
             moveExecuted = False
             while not moveExecuted:
-                textInput = input("Move to > ")
-                try:
-                    newRow, newCol = coordinatesFromInput(textInput)
-                except ValueError:
-                    print("Coordinates must be a numbers.")
-                    continue
-                else:
-                    newRow, newCol = coordinatesFromInput(textInput)
-                    temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
-                    # if it's a legal move
-                    if temporaryDisplacement in legalDisplacements:
-                        displacement = temporaryDisplacement
-                        board[newRow][newCol] = board[rowSelected][colSelected]
-                        board[rowSelected][colSelected] = emptySquare
-                        # eat
-                        # if the displacement is (+-2, +-2)
-                        if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
-                            pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
-                            board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
-                        # become king
-                        if player.isFacingUp and newRow == 0:
-                            board[newRow][newCol].becomesKing()
-                            doesBecomeKing = True
-                        elif newRow == boardDimention - 1:
-                            board[newRow][newCol].becomesKing()
-                            doesBecomeKing = True
-                        moveExecuted = True
+                
+                # if human select where to move to
+                if player.cpu == False:
+                    textInput = input("Move to > ")
+                    try:
+                        newRow, newCol = coordinatesFromInput(textInput)
+                    except ValueError:
+                        print("Coordinates must be a numbers.")
+                        continue
                     else:
-                        print("Not a legal move.")
+                        newRow, newCol = coordinatesFromInput(textInput)
+                        temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
+                # else if cpu, choose a displacement
+                else:
+                    print("Player " + player.symbols[PieceRank.MAN] + " is thinking...")
+                    temporaryDisplacement = player.cpuSelectDisplacement(legalDisplacements)
+                    newRow, newCol = (rowSelected + temporaryDisplacement[0], colSelected + temporaryDisplacement[1])
+                    time.sleep(timeToWait)
+                    
+                
+                # if it's a legal move
+                if temporaryDisplacement in legalDisplacements:
+                    displacement = temporaryDisplacement
+                    board[newRow][newCol] = board[rowSelected][colSelected]
+                    board[rowSelected][colSelected] = emptySquare
+                    # eat
+                    # if the displacement is (+-2, +-2)
+                    if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                        pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
+                        board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
+                    # become king
+                    if player.isFacingUp and newRow == 0:
+                        board[newRow][newCol].becomesKing()
+                        doesBecomeKing = True
+                    elif newRow == boardDimention - 1:
+                        board[newRow][newCol].becomesKing()
+                        doesBecomeKing = True
+                    moveExecuted = True
+                else:
+                    print(str(temporaryDisplacement) + "is not a legal move.")
 
             # next move you must eat
             mustEat = True
@@ -593,8 +630,7 @@ while not someoneWins:
                     winningPlayer = player
 
             # check if turn is over
-            #print("mustEat = False")
-            mustEat = False
+            mustEat = True
             # select next square and check if there are possible moves
             # but only if you have eaten
             if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
