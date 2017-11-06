@@ -138,7 +138,7 @@ def coordinatesFromInput(text):
 
 
 # return all available displacements
-def getLegalDisplacements(coordinates, mustEat=True):
+def getLegalDisplacements(coordinates, mustEat=False):
     
     possibleDisplacements = []
 
@@ -152,13 +152,13 @@ def getLegalDisplacements(coordinates, mustEat=True):
     if player.isFacingUp:
         mult = -1
     # if it's not first move you can only move by (+-2, +-2)
-    if mustEat:
+    if not mustEat:
         possibleDisplacements.append((1 * mult, -1))
         possibleDisplacements.append((1 * mult, 1))
     possibleDisplacements.append((2 * mult, -2))
     possibleDisplacements.append((2 * mult, 2))
     if board[row][col].rank == PieceRank.KING:
-        if mustEat:
+        if not mustEat:
             possibleDisplacements.append((-1 * mult, -1))
             possibleDisplacements.append((-1 * mult, 1))
         possibleDisplacements.append((-2 * mult, -2))
@@ -392,11 +392,17 @@ while not someoneWins:
     movesToUndo = None
     movesToRedo = None
 
+    # get all possible movable pieces (and eating is mandatory)
+    # Note: do it before the action selection, so this will be calculated only once (and
+    # the pieces could be highlighted on the board
+    #player.getMovablePieces();
+    mustEat = False
+
     # SELECT AN ACTION (move, undo, etc.)
     actionSelected = None;
     while actionSelected == None:
         actionToChek = input("Player " + player.symbols[PieceRank.MAN] + " ([m]ove r c, [u]ndo x, [r]edo x, [replay]) > ")
-        # spilt actionToChek
+        # spilt actionToChek into arguments
         actionToChek = actionToChek.split()
         # check if the the input is valid
         if actionToChek[0] == "m" or actionToChek == "move":
@@ -499,7 +505,6 @@ while not someoneWins:
 
         
         # MOVES
-        mustEat = True
         moveActionIsOver = False
         while not moveActionIsOver:
 
@@ -546,6 +551,9 @@ while not someoneWins:
                         moveExecuted = True
                     else:
                         print("Not a legal move.")
+
+            # next move you must eat
+            mustEat = True
 
             # STORE MOVE
             newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
