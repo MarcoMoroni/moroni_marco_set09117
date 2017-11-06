@@ -20,7 +20,7 @@ class ActionType(Enum):
 # print board
 def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
 
-    topMarginChars = 10 
+    topMarginChars = 10
     leftMarginChars = 10
     bottomMarginChars = 5
 
@@ -32,14 +32,14 @@ def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
     leftMargin = ""
     for l in range(leftMarginChars):
         leftMargin += " "
-    
+
     # create the line for col number
     line = leftMargin + "    "
     for i in range(boardDimention):
         line += "  " + str(i) + " "
     # print the col number
     print(line + "\n")
-    
+
     # create the line to visually divide the squares
     firstLine = "    ┌"
     line = "    ├"
@@ -57,7 +57,7 @@ def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
 
     # print the first line
     print(leftMargin + firstLine)
-    
+
     # print everithing else
     for rowNo, row in enumerate(board):
         # print row number
@@ -84,7 +84,7 @@ def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
     # bottom margin
     for l in range(bottomMarginChars):
         print()
-            
+
 
 
 
@@ -101,12 +101,12 @@ class Player:
 
 # piece class
 class Piece:
-    
+
     rank = PieceRank.MAN
 
     def __init__(self, player):
         self.player = player
-    
+
     def becomesKing(self):
         self.rank = PieceRank.KING
 
@@ -139,7 +139,7 @@ def coordinatesFromInput(text):
 
 # return all available displacements
 def getLegalDisplacements(coordinates, mustEat=False):
-    
+
     possibleDisplacements = []
 
     row = coordinates[0]
@@ -189,8 +189,8 @@ def getLegalDisplacements(coordinates, mustEat=False):
                     else:
                         #print("    nothing to eat")
                         legalDisplacements.remove(d)
-    
-    #print("  legalDisplacements =", legalDisplacements)   
+
+    #print("  legalDisplacements =", legalDisplacements)
     return legalDisplacements
 
 
@@ -199,7 +199,7 @@ def getLegalDisplacements(coordinates, mustEat=False):
 ##def undo(move):
 ##
 ##    undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
-##    
+##
 ##    # undo position
 ##    board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
 ##
@@ -224,7 +224,7 @@ def undo(movesNo):
         redoMoves.append(move);
 
         undoPosition = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
-        
+
         # undo position
         board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
 
@@ -250,7 +250,7 @@ def redo(movesNo):
 
         # push move to undo
         moves.append(move);
-        
+
         # redo position
         board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = board[move.originPosition[0]][move.originPosition[1]]
 
@@ -308,7 +308,7 @@ def replay():
 
     timeToWait = 1.5
 
-##    # board     
+##    # board
 ##    board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
 ##    setupPieces(board)
 ##
@@ -392,16 +392,28 @@ while not someoneWins:
     movesToUndo = None
     movesToRedo = None
 
-    # get all possible movable pieces (and eating is mandatory)
-    # Note: do it before the action selection, so this will be calculated only once (and
-    # the pieces could be highlighted on the board
-    #player.getMovablePieces();
+    # check if you must eat
     mustEat = False
+    for rowNo, row in enumerate(board):
+        for colNo, square in enumerate(row):
+            if type(square) is Piece:
+                if square.player == player:
+                    legalDisplacements = getLegalDisplacements((rowNo, colNo), mustEat=False)
+                    if (+2, +2) in legalDisplacements or (-2, -2) in legalDisplacements or (+2, -2) in legalDisplacements or (-2, +2) in legalDisplacements:
+                        mustEat = True
+            if mustEat:
+                break
+        if mustEat:
+            break
 
     # SELECT AN ACTION (move, undo, etc.)
     actionSelected = None;
     while actionSelected == None:
-        actionToChek = input("Player " + player.symbols[PieceRank.MAN] + " ([m]ove r c, [u]ndo x, [r]edo x, [replay]) > ")
+        print()
+        print("Player " + player.symbols[PieceRank.MAN])
+        if mustEat:
+            print("Note: you must eat")
+        actionToChek = input("([m]ove r c / [u]ndo x / [r]edo x / [replay]) > ")
         # spilt actionToChek into arguments
         actionToChek = actionToChek.split()
         # check if the the input is valid
@@ -418,7 +430,7 @@ while not someoneWins:
                     squareToCheck = board[tempRow][tempCol]
                     if (type(squareToCheck) is Piece):
                         if (squareToCheck.player == player):
-                            if not getLegalDisplacements((tempRow, tempCol)) == []:
+                            if not getLegalDisplacements((tempRow, tempCol), mustEat) == []:
                                 rowSelected = tempRow
                                 colSelected = tempCol
                                 actionSelected = ActionType.MOVE
@@ -500,10 +512,10 @@ while not someoneWins:
 ##            else:
 ##                print("No piece here.")
 
-    # DO ACTION 
+    # DO ACTION
     if actionSelected == ActionType.MOVE:
 
-        
+
         # MOVES
         moveActionIsOver = False
         while not moveActionIsOver:
@@ -516,7 +528,7 @@ while not someoneWins:
             # print borard with selection and availale moves
             legalDisplacements = getLegalDisplacements((rowSelected, colSelected), mustEat)
             printBoard(board, (rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
-                
+
             # DO A MOVE
             # Note: the piece to move is legal (already checked)
             newRow, newCol = -1, -1
@@ -591,7 +603,7 @@ while not someoneWins:
         else:
             player = players[0]
 
-            
+
     elif actionSelected == ActionType.UNDO:
 
         # UNDO
@@ -617,7 +629,7 @@ while not someoneWins:
         # REPLAY
         replay()
         # (do not change player)
-        
+
 
 
 # someone wins
