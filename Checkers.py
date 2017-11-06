@@ -402,8 +402,13 @@ while not someoneWins:
         if actionToChek[0] == "m" or actionToChek == "move":
             # Check if you can move
             if len(actionToChek) == 3:
-                tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
-                if isinstance(tempRow, int) and isinstance(tempCol, int):
+                try:
+                    tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
+                except ValueError:
+                    print("Coordinates must be numbers.")
+                    continue
+                else:
+                    tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
                     squareToCheck = board[tempRow][tempCol]
                     if (type(squareToCheck) is Piece):
                         if (squareToCheck.player == player):
@@ -417,8 +422,6 @@ while not someoneWins:
                             print("Not your piece.")
                     else:
                         print("No piece here.")
-                else:
-                    print("Coordinates must be numbers.")
             else:
                 print("Wrong number of arguments.")
         elif actionToChek[0] == "u" or actionToChek == "undo":
@@ -427,14 +430,17 @@ while not someoneWins:
                 movesToUndo = 1
                 actionSelected = ActionType.UNDO
             elif len(actionToChek) == 2:
-                movesToUndo = int(actionToChek[1])
-                if isinstance(movesToUndo, int):
+                try:
+                    movesToUndo = int(actionToChek[1])
+                except ValueError:
+                    print("Number of moves must be a number.")
+                    continue
+                else:
+                    movesToUndo = int(actionToChek[1])
                     if movesToUndo <= len(moves) and not movesToUndo == 0:
                         actionSelected = ActionType.UNDO
                     else:
                         print("Not a valid number of moves.")
-                else:
-                    print("Number of moves must be a number.")
             else:
                 print("Undo not valid.")
         elif actionToChek[0] == "r" or actionToChek == "redo":
@@ -443,14 +449,17 @@ while not someoneWins:
                 movesToRedo = 1
                 actionSelected = ActionType.REDO
             elif len(actionToChek) == 2:
-                movesToRedo = int(actionToChek[1])
-                if isinstance(movesToRedo, int):
+                try:
+                    movesToRedo = int(actionToChek[1])
+                except ValueError:
+                    print("Number of moves must be a number.")
+                    continue
+                else:
+                    movesToRedo = int(actionToChek[1])
                     if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
                         actionSelected = ActionType.REDO
                     else:
                         print("Not a valid number of moves.")
-                else:
-                    print("Number of moves must be a number.")
             else:
                 print("Redo not valid.")
         elif actionToChek[0] == "replay":
@@ -509,28 +518,34 @@ while not someoneWins:
             moveExecuted = False
             while not moveExecuted:
                 textInput = input("Move to > ")
-                newRow, newCol = coordinatesFromInput(textInput)
-                temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
-                # if it's a legal move
-                if temporaryDisplacement in legalDisplacements:
-                    displacement = temporaryDisplacement
-                    board[newRow][newCol] = board[rowSelected][colSelected]
-                    board[rowSelected][colSelected] = emptySquare
-                    # eat
-                    # if the displacement is (+-2, +-2)
-                    if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
-                        pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
-                        board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
-                    # become king
-                    if player.isFacingUp and newRow == 0:
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
-                    elif newRow == boardDimention - 1:
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
-                    moveExecuted = True
+                try:
+                    newRow, newCol = coordinatesFromInput(textInput)
+                except ValueError:
+                    print("Coordinates must be a numbers.")
+                    continue
                 else:
-                    print("Not a legal move.")
+                    newRow, newCol = coordinatesFromInput(textInput)
+                    temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
+                    # if it's a legal move
+                    if temporaryDisplacement in legalDisplacements:
+                        displacement = temporaryDisplacement
+                        board[newRow][newCol] = board[rowSelected][colSelected]
+                        board[rowSelected][colSelected] = emptySquare
+                        # eat
+                        # if the displacement is (+-2, +-2)
+                        if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                            pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
+                            board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
+                        # become king
+                        if player.isFacingUp and newRow == 0:
+                            board[newRow][newCol].becomesKing()
+                            doesBecomeKing = True
+                        elif newRow == boardDimention - 1:
+                            board[newRow][newCol].becomesKing()
+                            doesBecomeKing = True
+                        moveExecuted = True
+                    else:
+                        print("Not a legal move.")
 
             # STORE MOVE
             newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
