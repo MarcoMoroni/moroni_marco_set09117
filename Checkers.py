@@ -91,11 +91,12 @@ def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
 # player class
 class Player:
 
-    def __init__(self, symbols, isFacingUp=False):
+    def __init__(self, symbols, isFacingUp=False, cpu=True):
         # symbol[0] is for Man, [1] is for King
         self.symbols = {PieceRank.MAN: symbols[0], PieceRank.KING: symbols[1]}
         # remember the player side on the board
         self.isFacingUp = isFacingUp
+        self.cpu = cpu
 
 
 
@@ -369,6 +370,17 @@ p2 = Player(["●", "■"])
 players = []
 players.append(p1)
 players.append(p2)
+
+for player in players:
+    validInput = False
+    while not validInput:
+        i = input("Is player " + player.symbols[PieceRank.MAN] + " [h]uman or [c]pu? > ")
+        if i == "h" or i == "human":
+            player.cpu = False
+            validInput = True
+        elif i == "c" or i == "cpu":
+            player.cpu = True
+            validInput = True
 
 # pieces setup
 setupPieces(board)
