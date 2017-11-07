@@ -118,10 +118,9 @@ class Player:
 # piece class
 class Piece:
 
-    rank = PieceRank.MAN
-
     def __init__(self, player):
         self.player = player
+        self.rank = PieceRank.MAN
 
     def becomesKing(self):
         self.rank = PieceRank.KING
@@ -230,7 +229,7 @@ def getLegalDisplacements(coordinates, mustEat=False):
 
 
 # undo
-def undo(movesNo):
+def undo(movesNo=1):
 
     for moveNo in range(movesNo):
 
@@ -239,26 +238,42 @@ def undo(movesNo):
         # push move to redo
         redoMoves.append(move);
 
-        undoPosition = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
+##        undoPosition = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
+##
+##        # undo position
+##        board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
+##
+##        # undo eat
+##        if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
+##            board[move.originPosition[0] + int(move.displacement[0] / 2)][move.originPosition[1] + int(move.displacement[1] / 2)] = pieceEaten
+##
+##        # undo becoming king
+##        if move.doesBecomeKing:
+##            board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
+##
+##        # empty the "from" square
+##        board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = emptySquare
+
+        undoDisplacement = (move.displacement[0] * -1, move.displacement[1] * -1)
+        undoFrom = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
+        undoTo = (move.originPosition[0], move.originPosition[1])
 
         # undo position
-        board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
+        board[undoTo[0]][undoTo[1]] = board[undoFrom[0]][undoFrom[1]]
+        board[undoFrom[0]][undoFrom[1]] = emptySquare
 
         # undo eat
         if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
-            board[move.originPosition[0] + int(move.displacement[0] / 2)][move.originPosition[1] + int(move.displacement[1] / 2)] = pieceEaten
+            board[undoFrom[0] + int(undoDisplacement[0] / 2)][undoFrom[1] + int(undoDisplacement[1] / 2)] = pieceEaten
 
-        # undo becoming king
+        # undo become king
         if move.doesBecomeKing:
-            board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
-
-        # empty the "from" square
-        board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = emptySquare
+            board[undoTo[0]][undoTo[1]].undoBecomingKing()
 
 
 
 # redo
-def redo(movesNo):
+def redo(movesNo=1):
 
     for moveNo in range(movesNo):
 
@@ -297,10 +312,11 @@ def checkVictory(player):
 
 # starred string
 def starred(message):
+    leftMargin = "      "
     starLine = "****"
     for i in message:
         starLine += "*"
-    return(starLine + "\n" + "* " + message + " *\n" +starLine)
+    return(leftMargin + starLine + "\n" + leftMargin +  "* " + message + " *\n" + leftMargin + starLine)
 
 
 
@@ -355,7 +371,6 @@ def replay():
 ##        time.sleep(timeToWait)
 
     totalNumberOfMoves = len(moves)
-    # need to use this, or I have problem in for loops
 
     # undo everything
     undo(totalNumberOfMoves)
@@ -365,7 +380,7 @@ def replay():
 
     # redo eveything, but wait and show every moves
     for moveToRedo in range(totalNumberOfMoves):
-        redo(1)
+        redo()
         printBoard(board)
         time.sleep(timeToWait)
         print("Replay...")
@@ -385,7 +400,8 @@ p2 = Player(["●", "■"])
 players = []
 players.append(p1)
 players.append(p2)
-timeToWait = 1.5
+timeToWait = 0
+#timeToWait = 1.5
 
 for player in players:
     validInput = False
@@ -594,6 +610,7 @@ while not someoneWins:
                 
                 # if it's a legal move
                 if temporaryDisplacement in legalDisplacements:
+                    # move
                     displacement = temporaryDisplacement
                     board[newRow][newCol] = board[rowSelected][colSelected]
                     board[rowSelected][colSelected] = emptySquare
@@ -619,7 +636,7 @@ while not someoneWins:
             # STORE MOVE
             newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
             moves.append(newMove)
-            #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
+            print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
             # empty redoMoves
             redoMoves = []
 
@@ -681,12 +698,11 @@ while not someoneWins:
 
 
 # someone wins
-print()
-print()
+printBoard(board=board)
 print(starred("Player " + winningPlayer.symbols[PieceRank.MAN] + " win!"))
 print()
 
 # ask for replay
-replayRequested = input("Would you like to replay the game? (y/n)")
+replayRequested = input("Would you like to replay the game? (y/n) > ")
 if (replayRequested == "y"):
     replay()
