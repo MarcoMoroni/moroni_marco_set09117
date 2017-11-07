@@ -15,6 +15,7 @@ class ActionType(Enum):
     UNDO = 1
     REDO = 2
     REPLAY = 3
+    NONE = 4
 
 
 
@@ -264,7 +265,7 @@ def undo(movesNo=1):
 
         # undo eat
         if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
-            board[undoFrom[0] + int(undoDisplacement[0] / 2)][undoFrom[1] + int(undoDisplacement[1] / 2)] = pieceEaten
+            board[undoFrom[0] + int(undoDisplacement[0] / 2)][undoFrom[1] + int(undoDisplacement[1] / 2)] = move.pieceEaten
 
         # undo become king
         if move.doesBecomeKing:
@@ -328,10 +329,10 @@ def setupPieces(board):
                 if (col + row) % 2 == 0:
                     newPiece = Piece(player)
                     if player.isFacingUp:
-                        newPiece.initialPosition = (boardDimention - 1 - (boardDimention + row), boardDimention - 1 - (boardDimention + col))
+                        initialPosition = (boardDimention - 1 - (boardDimention + row), boardDimention - 1 - (boardDimention + col))
                     else:
-                        newPiece.initialPosition = (row, col)
-                    board[newPiece.initialPosition[0]][newPiece.initialPosition[1]] = newPiece
+                        initialPosition = (row, col)
+                    board[initialPosition[0]][initialPosition[1]] = newPiece
 
 
 
@@ -437,8 +438,11 @@ while not someoneWins:
     colSelected = None
     movesToUndo = None
     movesToRedo = None
+    
+    actionSelected = None;
 
     # check if you must eat
+    # and if player can move
     mustEat = False
     for rowNo, row in enumerate(board):
         for colNo, square in enumerate(row):
@@ -453,7 +457,6 @@ while not someoneWins:
             break
 
     # SELECT AN ACTION (move, undo, etc.)
-    actionSelected = None;
     # if human, select action
     if player.cpu == False:
         while actionSelected == None:
@@ -636,7 +639,7 @@ while not someoneWins:
             # STORE MOVE
             newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
             moves.append(newMove)
-            print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
+            #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
             # empty redoMoves
             redoMoves = []
 
@@ -669,6 +672,15 @@ while not someoneWins:
             player = players[0]
 
 
+    elif actionSelected == ActionType.NONE:
+
+        # CHANGE PLAYER
+        # (other player)
+        if player == players[0]:
+            player = players[1]
+        else:
+            player = players[0]
+        
     elif actionSelected == ActionType.UNDO:
 
         # UNDO
@@ -704,5 +716,5 @@ print()
 
 # ask for replay
 replayRequested = input("Would you like to replay the game? (y/n) > ")
-if (replayRequested == "y"):
+if replayRequested == "y":
     replay()
