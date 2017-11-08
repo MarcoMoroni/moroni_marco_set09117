@@ -20,7 +20,7 @@ class ActionType(Enum):
 
 
 # print board
-def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
+def printBoard(board, selectedPieceHighlight=[], legalMovesHighlights=[]):
 
     topMarginChars = 10
     leftMarginChars = 10
@@ -68,7 +68,7 @@ def printBoard(board, selectedPieceHighlight=(-1, -1), legalMovesHighlights=[]):
             if (type(square) is Piece):
                 # print the symbol of the piece depending on the rank
                 # also show if it is selected
-                if (rowNo, colNo) == selectedPieceHighlight:
+                if (rowNo, colNo) in selectedPieceHighlight:
                     print("│(" + square.player.symbols[square.rank] + ")", end='')
                 else:
                     print("│ " + square.player.symbols[square.rank] + " ", end='')
@@ -397,8 +397,7 @@ def replay():
     # redo eveything, but wait and show every moves
     for moveToRedo in range(totalNumberOfMoves):
         redo()
-        pieceMoved = (moves[-1].originPosition[0] + moves[-1].displacement[0], moves[-1].originPosition[1] + moves[-1].displacement[1])
-        printBoard(board, selectedPieceHighlight=pieceMoved)
+        printBoard(board)
         time.sleep(timeToWait)
         print("Replay...")
 
@@ -447,7 +446,7 @@ someoneWins = False
 player = p1
 while not someoneWins:
 
-    printBoard(board=board)
+    printBoard(board)
 
     rowSelected = None
     colSelected = None
@@ -618,7 +617,7 @@ while not someoneWins:
 
             # print borard with selection and availale moves
             legalDisplacements = getLegalDisplacements((rowSelected, colSelected), mustEat)
-            printBoard(board, (rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
+            printBoard(board, [(rowSelected, colSelected)], [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
 
             # SELECT WHERE TO MOVE
             # Note: the piece to move is legal (already checked)
@@ -749,7 +748,7 @@ while not someoneWins:
 
 
 # someone wins
-printBoard(board=board)
+printBoard(board)
 print(starred("Player " + winningPlayer.symbols[PieceRank.MAN] + " win!"))
 print()
 
