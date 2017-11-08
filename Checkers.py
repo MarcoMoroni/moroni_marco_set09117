@@ -143,16 +143,6 @@ class Move:
 
 
 
-### get x y coordinates from string
-##def coordinatesFromInput(text):
-##    # split
-##    coord = text.split()
-##    # convet to int
-##    coord = [int(i) for i in coord]
-##    return coord
-
-
-
 # return all available displacements
 def getLegalDisplacements(coordinates, mustEat=False):
 
@@ -514,19 +504,6 @@ while not someoneWins:
                             continue
                         else:
                             tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
-##                            squareToCheck = board[tempRow][tempCol]
-##                            if (type(squareToCheck) is Piece):
-##                                if (squareToCheck.player == player):
-##                                    if not getLegalDisplacements((tempRow, tempCol), mustEat) == []:
-##                                        rowSelected = tempRow
-##                                        colSelected = tempCol
-##                                        actionSelected = ActionType.MOVE
-##                                    else:
-##                                        print("This piece can't move.")
-##                                else:
-##                                    print("Not your piece.")
-##                            else:
-##                                print("No piece here.")
                             if (tempRow, tempCol) in [p[0] for p in movablePieces]:
                                 pieceSelected = ((tempRow, tempCol), getLegalDisplacements((tempRow, tempCol), mustEat))
                                 actionSelected = ActionType.MOVE
@@ -632,6 +609,7 @@ while not someoneWins:
             displacement = None
             pieceEaten = None
 
+            # must recalculate legal displacements, because it has to change on every loop
             legalDisplacements = getLegalDisplacements((rowSelected, colSelected), mustEat)
 
             # print borard with selection and availale moves
@@ -651,13 +629,11 @@ while not someoneWins:
                     textInput = textInput.split()
                     if len(textInput) == 2:
                         try:
-                            #newRow, newCol = coordinatesFromInput(textInput)
                             newRow, newCol = int(textInput[0]), int(textInput[1])
                         except ValueError:
                             print("Coordinates must be a numbers.")
                             continue
                         else:
-                            #newRow, newCol = coordinatesFromInput(textInput)
                             newRow, newCol = int(textInput[0]), int(textInput[1])
                             temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
                             if temporaryDisplacement in legalDisplacements:
@@ -697,7 +673,6 @@ while not someoneWins:
             # STORE MOVE
             newMove = Move((rowSelected, colSelected), displacement, pieceEaten, doesBecomeKing)
             moves.append(newMove)
-            #print("Move " + str(len(moves) - 1) + " stored: from " + str((rowSelected, colSelected)) + " moved by " + str(displacement))
             # empty redoMoves
             redoMoves = []
 
