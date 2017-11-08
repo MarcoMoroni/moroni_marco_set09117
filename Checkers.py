@@ -20,7 +20,7 @@ class ActionType(Enum):
 
 
 # print board
-def printBoard(board, selectedPieceHighlight=[], legalMovesHighlights=[]):
+def printBoard(board, piecesHighlights=[], legalMovesHighlights=[]):
 
     topMarginChars = 10
     leftMarginChars = 10
@@ -68,7 +68,7 @@ def printBoard(board, selectedPieceHighlight=[], legalMovesHighlights=[]):
             if (type(square) is Piece):
                 # print the symbol of the piece depending on the rank
                 # also show if it is selected
-                if (rowNo, colNo) in selectedPieceHighlight:
+                if (rowNo, colNo) in piecesHighlights:
                     print("│(" + square.player.symbols[square.rank] + ")", end='')
                 else:
                     print("│ " + square.player.symbols[square.rank] + " ", end='')
@@ -446,8 +446,6 @@ someoneWins = False
 player = p1
 while not someoneWins:
 
-    printBoard(board)
-
     rowSelected = None
     colSelected = None
     movesToUndo = None
@@ -455,25 +453,31 @@ while not someoneWins:
     
     actionSelected = None;
 
-    # check if you must eat
-    # and if player can move (end the loop without fining any move)
+    # get list of all movable pieces with respective displacements
+    # + check if you must eat
+    # + check if player can move
     mustEat = False
     canMove = False
+    movablePieces = [] # [(piece coord, [displacements])]
     for rowNo, row in enumerate(board):
         for colNo, square in enumerate(row):
             if type(square) is Piece:
                 if square.player == player:
-                    legalDisplacements = getLegalDisplacements((rowNo, colNo), mustEat=False)
-                    # check if player can move
-                    if len(legalDisplacements) > 0:
+                    displacements = getLegalDisplacements((rowNo, colNo))
+                    if not displacements == []:
+                        movablePieces.append(((rowNo, colNo), displacements))
                         canMove = True
-                    # check if player can eat
-                    if (+2, +2) in legalDisplacements or (-2, -2) in legalDisplacements or (+2, -2) in legalDisplacements or (-2, +2) in legalDisplacements:
-                        mustEat = True
-            if mustEat:
-                break
-        if mustEat:
-            break
+                        if (+2, +2) in displacements or (-2, -2) in displacements or (+2, -2) in displacements or (-2, +2) in displacements:
+                            mustEat = True
+    # if player must eat keep only pieces that eat
+    if mustEat and canMove:
+        newListOfPieces = []
+        for p in movablePieces:
+            if (+2, +2) in p[1] or (-2, -2) in p[1] or (+2, -2) in p[1] or (-2, +2) in p[1]:
+                newListOfPieces.append((p[0], getLegalDisplacements((p[0][0], p[0][1]), mustEat=mustEat)))
+        movablePieces = newListOfPieces
+    
+    printBoard(board, piecesHighlights=[p[0] for p in movablePieces])
 
     # SELECT AN ACTION (move, undo, etc.)
     # if human, select action
