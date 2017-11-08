@@ -476,27 +476,32 @@ while not someoneWins:
         if mustEat:
             break
 
-    # force actionType.NONE if player can't move
-    if not canMove:
-        print("Player " + player.symbols[PieceRank.MAN] + " cannot move this turn")
-        actionSelected = ActionType.NONE
-        time.sleep(timeToWait)
-
     # SELECT AN ACTION (move, undo, etc.)
     # if human, select action
-    if actionSelected == None:
-        if player.cpu == False:
-            while actionSelected == None:
-                print()
-                print("Player " + player.symbols[PieceRank.MAN])
-                if mustEat:
-                    print("Note: you must eat")
-                actionToChek = input("([m]ove r c / [u]ndo x / [r]edo x / [replay]) > ")
-                # spilt actionToChek into arguments
-                actionToChek = actionToChek.split()
-                # check if the the input is valid
-                if actionToChek[0] == "m" or actionToChek == "move":
-                    # Check if you can move
+    if player.cpu == False:
+        while actionSelected == None:
+            print()
+            print("Player " + player.symbols[PieceRank.MAN])
+            if mustEat:
+                print("Note: you must eat")
+            if not canMove:
+                print("Note: you cannot move this turn")
+            actionToChek = input("([m]ove r c / [u]ndo x / [r]edo x / [replay] / [n]one) > ")
+            # spilt actionToChek into arguments
+            actionToChek = actionToChek.split()
+            # check if the the input is valid
+            if actionToChek[0] == "n" or actionToChek == "none":
+                # check if you can not do any move
+                if len(actionToChek) == 1:
+                    if not canMove:
+                        actionSelected = ActionType.NONE
+                    else:
+                        print("You can skip your turn only if you can't move.")
+                else:
+                    print("Wrong number of arguments.")
+            elif actionToChek[0] == "m" or actionToChek == "move":
+                # Check if you can move
+                if canMove:
                     if len(actionToChek) == 3:
                         try:
                             tempRow, tempCol = int(actionToChek[1]), int(actionToChek[2])
@@ -520,58 +525,60 @@ while not someoneWins:
                                 print("No piece here.")
                     else:
                         print("Wrong number of arguments.")
-                elif actionToChek[0] == "u" or actionToChek == "undo":
-                    # Check if you can undo
-                    if len(actionToChek) == 1 and len(moves) > 0:
-                        movesToUndo = 1
-                        actionSelected = ActionType.UNDO
-                    elif len(actionToChek) == 2:
-                        try:
-                            movesToUndo = int(actionToChek[1])
-                        except ValueError:
-                            print("Number of moves must be a number.")
-                            continue
+                else:
+                    print("You cannot move this turn")
+            elif actionToChek[0] == "u" or actionToChek == "undo":
+                # Check if you can undo
+                if len(actionToChek) == 1 and len(moves) > 0:
+                    movesToUndo = 1
+                    actionSelected = ActionType.UNDO
+                elif len(actionToChek) == 2:
+                    try:
+                        movesToUndo = int(actionToChek[1])
+                    except ValueError:
+                        print("Number of moves must be a number.")
+                        continue
+                    else:
+                        movesToUndo = int(actionToChek[1])
+                        if movesToUndo <= len(moves) and not movesToUndo == 0:
+                            actionSelected = ActionType.UNDO
                         else:
-                            movesToUndo = int(actionToChek[1])
-                            if movesToUndo <= len(moves) and not movesToUndo == 0:
-                                actionSelected = ActionType.UNDO
-                            else:
-                                print("Not a valid number of moves.")
+                            print("Not a valid number of moves.")
+                else:
+                    print("Undo not valid.")
+            elif actionToChek[0] == "r" or actionToChek == "redo":
+                # Check if you can redo
+                if len(actionToChek) == 1 and len(redoMoves) > 0:
+                    movesToRedo = 1
+                    actionSelected = ActionType.REDO
+                elif len(actionToChek) == 2:
+                    try:
+                        movesToRedo = int(actionToChek[1])
+                    except ValueError:
+                        print("Number of moves must be a number.")
+                        continue
                     else:
-                        print("Undo not valid.")
-                elif actionToChek[0] == "r" or actionToChek == "redo":
-                    # Check if you can redo
-                    if len(actionToChek) == 1 and len(redoMoves) > 0:
-                        movesToRedo = 1
-                        actionSelected = ActionType.REDO
-                    elif len(actionToChek) == 2:
-                        try:
-                            movesToRedo = int(actionToChek[1])
-                        except ValueError:
-                            print("Number of moves must be a number.")
-                            continue
+                        movesToRedo = int(actionToChek[1])
+                        if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
+                            actionSelected = ActionType.REDO
                         else:
-                            movesToRedo = int(actionToChek[1])
-                            if movesToRedo <= len(redoMoves) and not movesToRedo == 0:
-                                actionSelected = ActionType.REDO
-                            else:
-                                print("Not a valid number of moves.")
-                    else:
-                        print("Redo not valid.")
-                elif actionToChek[0] == "replay":
-                    # Check if you can replay
-                    if len(actionToChek) == 1:
-                        actionSelected = ActionType.REPLAY
-                    else:
-                        print("Input not valid.")
+                            print("Not a valid number of moves.")
+                else:
+                    print("Redo not valid.")
+            elif actionToChek[0] == "replay":
+                # Check if you can replay
+                if len(actionToChek) == 1:
+                    actionSelected = ActionType.REPLAY
                 else:
                     print("Input not valid.")
-        # else if cpu, can only move
-        else:
-            print("Player " + player.symbols[PieceRank.MAN] + " is thinking...")
-            rowSelected, colSelected = player.cpuSelectPiece(mustEat)
-            actionSelected = ActionType.MOVE
-            time.sleep(timeToWait)
+            else:
+                print("Input not valid.")
+    # else if cpu, can only move
+    else:
+        print("Player " + player.symbols[PieceRank.MAN] + " is thinking...")
+        rowSelected, colSelected = player.cpuSelectPiece(mustEat)
+        actionSelected = ActionType.MOVE
+        time.sleep(timeToWait)
 
     # SELECT A PIECE
 ##        rowSelected = None
