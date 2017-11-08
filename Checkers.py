@@ -620,52 +620,57 @@ while not someoneWins:
             legalDisplacements = getLegalDisplacements((rowSelected, colSelected), mustEat)
             printBoard(board, (rowSelected, colSelected), [(rowSelected + d[0], colSelected + d[1]) for d in legalDisplacements])
 
-            # DO A MOVE
+            # SELECT WHERE TO MOVE
             # Note: the piece to move is legal (already checked)
             newRow, newCol = -1, -1
-            moveExecuted = False
-            while not moveExecuted:
+            moveSelected = False
+            while not moveSelected:
                 
                 # if human select where to move to
                 if player.cpu == False:
                     textInput = input("Move to > ")
-                    try:
-                        newRow, newCol = coordinatesFromInput(textInput)
-                    except ValueError:
-                        print("Coordinates must be a numbers.")
-                        continue
+                    textInput = textInput.split()
+                    if len(textInput) == 2:
+                        try:
+                            #newRow, newCol = coordinatesFromInput(textInput)
+                            newRow, newCol = int(textInput[0]), int(textInput[1])
+                        except ValueError:
+                            print("Coordinates must be a numbers.")
+                            continue
+                        else:
+                            #newRow, newCol = coordinatesFromInput(textInput)
+                            newRow, newCol = int(textInput[0]), int(textInput[1])
+                            temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
+                            if temporaryDisplacement in legalDisplacements:
+                                moveSelected = True
+                            else:
+                                print("Not a legal move.")
                     else:
-                        newRow, newCol = coordinatesFromInput(textInput)
-                        temporaryDisplacement = (newRow - rowSelected, newCol - colSelected)
+                        print ("Wrong number of arguments")
                 # else if cpu, choose a displacement
                 else:
                     print("Player " + player.symbols[PieceRank.MAN] + " is thinking...")
                     temporaryDisplacement = player.cpuSelectDisplacement(legalDisplacements)
                     newRow, newCol = (rowSelected + temporaryDisplacement[0], colSelected + temporaryDisplacement[1])
                     time.sleep(timeToWait)
+                    moveSelected = True
                     
-                
-                # if it's a legal move
-                if temporaryDisplacement in legalDisplacements:
-                    # move
-                    displacement = temporaryDisplacement
-                    board[newRow][newCol] = board[rowSelected][colSelected]
-                    board[rowSelected][colSelected] = emptySquare
-                    # eat
-                    # if the displacement is (+-2, +-2)
-                    if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
-                        pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
-                        board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
-                    # become king
-                    if player.isFacingUp and newRow == 0:
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
-                    elif newRow == boardDimention - 1:
-                        board[newRow][newCol].becomesKing()
-                        doesBecomeKing = True
-                    moveExecuted = True
-                else:
-                    print(str(temporaryDisplacement) + "is not a legal move.")
+            # DO THE MOVE
+            displacement = temporaryDisplacement
+            board[newRow][newCol] = board[rowSelected][colSelected]
+            board[rowSelected][colSelected] = emptySquare
+            # eat
+            # if the displacement is (+-2, +-2)
+            if abs(displacement[0]) == 2 and abs(displacement[1]) == 2:
+                pieceEaten = board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)]
+                board[rowSelected + int(displacement[0] / 2)][colSelected + int(displacement[1] / 2)] = emptySquare
+            # become king
+            if player.isFacingUp and newRow == 0:
+                board[newRow][newCol].becomesKing()
+                doesBecomeKing = True
+            elif newRow == boardDimention - 1:
+                board[newRow][newCol].becomesKing()
+                doesBecomeKing = True
 
             # next move you must eat
             mustEat = True
