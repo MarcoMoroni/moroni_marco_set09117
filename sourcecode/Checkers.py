@@ -721,7 +721,6 @@ while not someoneWins:
         undo(movesToUndo)
 
         # CHANGE PLAYER
-        print("Changing player to player like the one in " + str(redoMoves[-1].originPosition[0]), str(redoMoves[-1].originPosition[1]))
         player = board[redoMoves[-1].originPosition[0]][redoMoves[-1].originPosition[1]].player
 
     elif actionSelected == ActionType.REDO:
@@ -731,7 +730,6 @@ while not someoneWins:
         redo(movesToRedo)
 
         # CHANGE PLAYER
-        print("Changing player to player like the one in " + str(moves[-1].originPosition[0] - moves[-1].displacement[0]), str(moves[-1].originPosition[1] - moves[-1].displacement[1]))
         player = board[moves[-1].originPosition[0] - moves[-1].displacement[0]][moves[-1].originPosition[1] - moves[-1].displacement[1]].player
 
     elif actionSelected == ActionType.REPLAY:
