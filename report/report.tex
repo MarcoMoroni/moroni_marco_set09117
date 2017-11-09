@@ -2,10 +2,10 @@
 % ########### FILL THESE IN #############
 % #######################################
 \def\mytitle{Coursework Report}
-\def\mykeywords{Fill, These, In, So, google, can, find, your, report}
-\def\myauthor{Cool Student}
-\def\contact{4008000@napier.ac.uk}
-\def\mymodule{Module Title (SET00000)}
+\def\mykeywords{algorithms, data structures, Python, checkers, draughts}
+\def\myauthor{Marco Moroni}
+\def\contact{40213873@live.napier.ac.uk}
+\def\mymodule{Algorithms \& Data Structures  (SET09117)}
 % #######################################
 % #### YOU DON'T NEED TO TOUCH BELOW ####
 % #######################################
@@ -84,20 +84,59 @@
 \begin{document}
     \maketitle
     \begin{abstract}
-        %Replace the lipsum command with actual text 
-        \lipsum[2]
+        The goal of this coursework is to implement the classic board game of checkers in an arbitrary computer language demonstrating a correct use of data structures. The language chosen here is Python and the game can be played from the console.
     \end{abstract}
     
     \textbf{Keywords -- }{\mykeywords}
     
     \section{Introduction}
-    \paragraph{Referencing}
-    You should cite References like this: \cite{Keshav}. The references are saved in an external .bib file, and will automatically be added to the bibliography at the end once cited.
+       
+    \section{Implementation}
     
-    \figuremacro{h}{placeholder}{ImageTitle}{ - Some Descriptive Text}{1.0}
+    \subsection{Overwiew}
+    The board is made by a 2D list, in which every item can be either empty or a piece. \\
+    Every piece know its \textit{rank} (man or king) and what player they belong to. \\
+    Moves are recorded in a stack called \texttt{moves}, which is used when undoing. There is another similar stack, \texttt{redoMoves}, used to store moves that can be redone. \\
+    The game uses a while loop as a game loop. This loop runs until there is a winner. \\
+    Finally, the AI works by choosing random moves.
+    
+    \subsection{Board}
+    This project started by creating a simple board made by a 2D array. In Python this is archived by using a list of lists, which means a list of rows where each row is a list os sqaures. \\
+    There are 8 rows and 8 columns and each sqaure of the board is initially empty (\texttt{None} in Python).
+    
+    \subsection{Pieces}
+    In checkers a piece can be:
+    \begin{itemize}
+    	\item either black or white;
+    	\item either a man or a king.
+    \end{itemize}
+	Considering that, the game uses a \texttt{Piece} class that knows:
+	\begin{itemize}
+		\item its player (of type \texttt{Player});
+		\item its \textit{rank}, that is wheter it is a man or a king.
+	\end{itemize}
+	The ranks are enumerated elements of a class \texttt{PieceRank}: the values are \texttt{PieceRank.MAN} and \texttt{PieceRank.KING}.
+	Initially, a piece also knew its position it had at the beginning of the game. This information could have been used in an early version of the \texttt{replay} funtion, where there was a board reset to its inital state. Later on this information became useless, because \texttt{replay} now resets the board by undoing every move.
+	
+	\subsection{Players}
+	A player is normally identified by being either black or white. In this implementation, a player is an instance of a class \texttt{Player}. This class has:
+	\begin{itemize}
+		\item a dictionary of symbols (\textit{symbols} are the characters printed in the console to represent a piece). The keys are \texttt{PieceRank}s and the values are a character (eg. a white/black dot for men, or a white/black sqaure for kings);
+		\item a boolean \texttt{isFacingUp}. This is used in two occasions: when setting up the pieces (see \textit{Prelude}) and when getting all the legal displacements of a piece (see \textit{Getting legal displacements});
+		\item a boolean \texttt{cpu};
+		\item all the functions used by AI (called when the player is not human) (see \textit{AI}).
+	\end{itemize}
+
+	\subsection{Moves}
+	...
+
 	
 	\section{Formatting}
-	Some common formatting you may need uses these commands for \textbf{Bold Text}, \textit{Italics}, and \underline{underlined}.
+	Some common formatting you may need uses these commands for \textbf{Bold Text}, \textit{Italics}, and \underline{underlined}. \texttt{Inline code}.
+	\subsection{Referencing}
+	You should cite References like this: \cite{Keshav}. The references are saved in an external .bib file, and will automatically be added to the bibliography at the end once cited.
+	
+	\figuremacro{h}{placeholder}{ImageTitle}{ - Some Descriptive Text}{1.0}
 	\subsection{LineBreaks}
 	Here is a line
     
