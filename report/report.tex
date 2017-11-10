@@ -127,7 +127,56 @@
 		\item all the functions used by AI (called when the player is not human) (see \textit{AI}).
 	\end{itemize}
 
+	\subsection{Printing the board}
+	The function \texttt{printBoard} simply print a symbol for every sqaure where there is a \texttt{Piece}. It will print one of the two symbols (man or king) stored in the player class of the piece
+
 	\subsection{Moves}
+	Every move is an instance of the class \texttt{Move}. This class stores the \texttt{originPosition} of the moved piece, the \texttt{displacement} (\((\pm1, \pm1)\) or \((\pm2, \pm2)\)), the eventual \texttt{pieceEaten} and a boolean \texttt{doesBecomeKing}. \\
+	Initially \texttt{pieceEaten} was not present, but knowing only if the displacement is \((\pm2, \pm2)\) is not enogh when undoing a move. It would be easy to just create another piece of the opponent player when recreating an eaten piece, but there would be no way to know what rank it used to be.
+	
+	\subsection{Storing moves}
+	Moves are stored in a Python list \texttt{moves} considered as a stack: when performed, a move gets pushed in and when undone, it gets popped out. Another stack has been added later, \texttt{redoMoves}, which is used to store moves that can be redone. \\
+	The program works with these 2 stacks by following 3 rules:
+	\begin{enumerate}
+		\item every time a move is performed, tis move gets pushed to \texttt{moves} and \texttt{redoMoves} is emptied;
+		\item when undoing the last move \texttt{m}, \texttt{m} get popped from \texttt{moves} and pushed to \texttt{redoMoves};
+		\item when redoing a move \texttt{m}, \texttt{m} get popped from \texttt{redoMoves} and pushed to \texttt{moves}.
+	\end{enumerate}
+	
+	\subsection{Undo}
+	...
+	
+	\subsection{Redo}
+	...
+	
+	\subsection{Replay}
+	...
+	
+	\subsection{Getting legal moves}
+	...
+	
+	\subsection{Game loop}
+	...
+	
+	\subsubsection{Prelude}
+	...
+	
+	\subsubsection{Getting all movable pieces}
+	...
+	
+	\subsubsection{Selecting an action (move, undo, redo, etc.)}
+	...
+	
+	\subsubsection{Perform the action}
+	...
+	
+	\subsubsection{Next player}
+	...
+	
+	\subsection{Future work}
+	...
+	
+	\subsection{Conclusion}
 	...
 
 	
