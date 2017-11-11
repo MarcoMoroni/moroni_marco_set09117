@@ -90,6 +90,7 @@
     \textbf{Keywords -- }{\mykeywords}
     
     \section{Introduction}
+    ...
        
     \section{Implementation}
     
@@ -122,7 +123,7 @@
 	A player is normally identified by being either black or white. In this implementation, a player is an instance of a class \texttt{Player}. This class has:
 	\begin{itemize}
 		\item a dictionary of symbols (\textit{symbols} are the characters printed in the console to represent a piece). The keys are \texttt{PieceRank}s and the values are a character (eg. a white/black dot for men, or a white/black sqaure for kings);
-		\item a boolean \texttt{isFacingUp}. This is used in two occasions: when setting up the pieces (see \textit{Prelude}) and when getting all the legal displacements of a piece (see \textit{Getting legal displacements});
+		\item a boolean \texttt{isFacingUp}. This is used in two occasions: when setting up the pieces (see section \ref{subsubsec:prelude} \textit{Prelude}) and when getting all the legal displacements of a piece (see section \ref{subsec:gettinglegalmoves} \textit{Getting legal moves});
 		\item a boolean \texttt{cpu};
 		\item all the functions used by AI (called when the player is not human) (see \textit{AI}).
 	\end{itemize}
@@ -144,39 +145,161 @@
 	\end{enumerate}
 	
 	\subsection{Undo}
-	...
+	When the function \texttt{undo} is called the steps in algorithm \ref{alg:undo}.
+	\begin{algorithm}[h]
+		\label{alg:undo}
+		move = moves.pop()
+		redoMoves.push(move)
+		undo piece position
+		\If{move.displacement == \((\pm2, \pm2)\)}{
+			restore piece eaten in \((\pm1, \pm1)\)
+		}
+		\If{move.doesBecomeKing}{
+			piece.undoBecomingKing
+		}
+		\caption{\texttt{undo}}
+	\end{algorithm}
+	There was a problem with this function: if one of the players was not human the following scenario would happen:
+	\begin{enumerate}
+		\item it's turn 5: human player choose to undo;
+		\item it's now cpu player's turn: it moves a piece;
+		\item it's turn 5 again and human player did not actually undo her move;
+	\end{enumerate}
+	To fix this situation \texttt{undo} can take one argument that corresponds to the number of moves a player wants to undo. The only change to implement this was to put algorithm \ref{alg:undo} inisde a \texttt{for} loop.
 	
 	\subsection{Redo}
-	...
+	\texttt{redo} is very similar to \texttt{undo}, as you can see in algorithm \ref{alg:redo}.
+	\begin{algorithm}[h]
+		\label{alg:redo}
+		move = redoMoves.pop()
+		moves.push(move)
+		redo piece position
+		\If{move.displacement == \((\pm2, \pm2)\)}{
+			eat piece in \((\pm1, \pm1)\)
+		}
+		\If{move.doesBecomeKing}{
+			piece.becomesKing
+		}
+		\caption{\texttt{redo}}
+	\end{algorithm}
+	And like \texttt{undo}, the whole algorithm is inside a for loop that iterates as many times as the player want to.
 	
 	\subsection{Replay}
-	...
+	\texttt{replay} is quite simple. It first undo everything and then it redo everything (but in slightly different ways). As shown in alogrithm \ref{alg:replay}, while \texttt{undo} is called only once (it undo the whole game), \texttt{redo} gets called once for each move and every time the board is printed. In this way the user can see all the moves made in chronological order, just like the game is being replayed.
+	\begin{algorithm}[h]
+		\label{alg:replay}
+		totalNumberOfMoves = len(moves)
+		undo(totalNumberOfMoves)
+		printBoard()
+		\For{$i = 0$ \KwTo totalNumberOfMoves}{
+			redo()
+			printBoard()
+			wait some time
+		}
+		\caption{\texttt{replay}}
+	\end{algorithm}
 	
 	\subsection{Getting legal moves}
-	...
+	\label{subsec:gettinglegalmoves}
+	This is the function that implements most of the rules of the board game. \\
+	It is called \texttt{getLegalDisplacements} because it returns a list of all the legal displacements (\((\pm1, \pm1)\) or \((\pm2, \pm2)\)) a piece can move by. It has 2 arguments:
+	\begin{itemize}
+		\item the coordinates of the piece to be considered;
+		\item a boolean \texttt{mustEat}.
+	\end{itemize}
+	This is how the function works: it creates a list \texttt{possibleDisplacements} of the 8 possible displacements (all the sign combinations of \((\pm1, \pm1)\) and \((\pm2, \pm2)\)), it deletes all the illegal displacements, and then it returns it (as the list of all legal displacements called \texttt{legalDisplacements}). \\
+	That was the big picture of \texttt{getLegalDisplacements}, but the implementation has been optimised and tweaked little bit as you can see in algorithm \ref{alg:getlegaldisplacements}.\\
+	\begin{algorithm}[h]
+		\label{alg:getlegaldisplacements}
+		possibleDisplacements = []\\
+		// use a multiplier to change the rows depending on which side the playeris facing\\
+		mult = 1\\
+		\If{player.isFacingUp}{
+			mult = -1\\
+		}
+		// add displacements to possibleDisplacements \\
+		\If{not mustEat}{
+			possibleDisplacements.append((1 * mult, -1))\\
+			possibleDisplacements.append((1 * mult, 1))\\
+		}
+		possibleDisplacements.append((2 * mult, -2))\\
+		possibleDisplacements.append((2 * mult, 2))\\
+		\If{piece.player is king}{
+			\If{not mustEat}{
+				possibleDisplacements.append((-1 * mult, -1))\\
+				possibleDisplacements.append((-1 * mult, 1))\\
+			}
+			possibleDisplacements.append((-2 * mult, -2))\\
+			possibleDisplacements.append((-2 * mult, 2))\\
+		}
+		// remove illegal displacements\\
+		legalDisplacements = []\\
+		\For{each displacement in possibleDisplacements}{
+			\If{destination is inside the board and is not occupied}{
+				\If{displacement is \((\pm2, \pm2)\)}{
+					\If{you eat an opponent piece}{
+						add displacement to legalDisplacements\\
+					}
+				}
+				\Else{
+					add displacement to legalDisplacements\\
+				}
+			}
+		}
+		return legalDisplacements\\
+		\caption{\texttt{replay}}
+	\end{algorithm}
+	From there it can be noted that \texttt{possibleDisplacements} does not have all 8 displacements, but only the ones possible depending on rank and \texttt{mustEat}. Also, every row is multiplied by $-1$ if the player is facing the board so that the closest row to him is the 8th.\\
+	After that, only the legal displacements between those are kept and returned. Because element shouldn't be removed from a list while it is iterated, another list, \texttt{lagaleDisplacements}, had to be used, be the concept remains the same.
 	
 	\subsection{Game loop}
-	...
+	The game is player in a while loop that runs until there is a winner. The steps inside this loop are the following:
+	\begin{enumerate}
+		\item get a list of all movable pieces;
+		\item select an action (move, undo, redo, replay, none (if no movement are available));
+		\item perform the action;
+		\item calculate next player.
+	\end{enumerate}
 	
 	\subsubsection{Prelude}
-	...
+	\label{subsubsec:prelude}
+	Before the game loop begins, the game has to be set up:
+	\begin{enumerate}
+		\item the empty board is created;
+		\item the players are created;
+		\item the pieces are created and placed on the board (using the same algorithm for both sides, but tweaked with a row multiplier, like in algorithm \ref{alg:getlegaldisplacements});
+		\item the empty stacks \texttt{moves} and \texttt{redoMoves} are created
+		\item one of the players is set as current player
+	\end{enumerate}
 	
 	\subsubsection{Getting all movable pieces}
-	...
+	At the beginning of the game loop a list of \texttt{(pieceCoordinate, [displacements])} is created by using the function \texttt{getLegalDisplacements} for each current player's pieces. When creating this list the program also remembers two things (as booleans): if at least one piece can eat (\texttt{mustEat}) and if there are no possible moves (\texttt{canMove}).\\
+	In checkes, if a player have the possibility to eat an opponent piece she must do so: if \texttt{mustEat} is true the movable pieces are recalculated, but tis time the function \texttt{getLegalDisplacements} will be forced to return displacements of \((\pm2, \pm2)\).\\
+	The list of all movable pieces is used not only for an easier check of the player's input, but also to help the player deciding what to do, by printing a board that highlights all the pieces that can be moved.
 	
 	\subsubsection{Selecting an action (move, undo, redo, etc.)}
-	...
+	The player is now able to select an action: move (if \texttt{canMove == True}), undo (if \texttt{len(moves) > 0}), redo (if \texttt{len(redoMoves) > 0}), replay or nothing (if \texttt{canMove == False}).\\
+	An action is stored as an enumarated value of the class \texttt{ActionType}.\\
+	If the player is not human there are only two possible choices: move or nothing.
 	
 	\subsubsection{Perform the action}
 	...
 	
 	\subsubsection{Next player}
+	Because this program supports undo and redo, calculating who the next player is is not straightforward.\\
+	This is how it is calculated depending on the action performed (note that this is executed \textit{after} the action):
+	\begin{itemize}
+		\item move: the other player;
+		\item undo: the player of the last move in \texttt{redoMoves};
+		\item redo: the player of the last move in \texttt{moves};
+		\item replay: the same player, because when the replay is over it will still be the turn of the player who called the function;
+		\item nothing: the other player.
+	\end{itemize}
+	
+	\section{Future work}
 	...
 	
-	\subsection{Future work}
-	...
-	
-	\subsection{Conclusion}
+	\section{Conclusion}
 	...
 
 	

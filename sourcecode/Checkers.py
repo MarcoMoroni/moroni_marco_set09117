@@ -567,10 +567,14 @@ while not someoneWins:
     # else if cpu, can only move
     else:
         print("Player " + player.symbols[PieceRank.MAN] + " is thinking...")
-        pieceCoord = player.cpuSelectPiece(mustEat)
-        pieceSelected = (pieceCoord, getLegalDisplacements(pieceCoord, mustEat))
-        actionSelected = ActionType.MOVE
+        if canMove:
+            pieceCoord = player.cpuSelectPiece(mustEat)
+            pieceSelected = (pieceCoord, getLegalDisplacements(pieceCoord, mustEat))
+            actionSelected = ActionType.MOVE
+        else:
+            actionSelected = ActionType.NONE
         time.sleep(timeToWait)
+            
 
     # SELECT A PIECE
 ##        rowSelected = None
@@ -749,3 +753,5 @@ print()
 replayRequested = input("Would you like to replay the game? (y/n) > ")
 if replayRequested == "y":
     replay()
+
+stop = input()
