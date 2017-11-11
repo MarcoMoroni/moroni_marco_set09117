@@ -90,7 +90,7 @@
     \textbf{Keywords -- }{\mykeywords}
     
     \section{Introduction}
-    ...
+    This report aims to describe the implementation of a checkers game. It was important to use the correct data structures in the code, trying to make it as efficient as possible. The game was coded in using Python.
        
     \section{Implementation}
     
@@ -268,8 +268,8 @@
 		\item the empty board is created;
 		\item the players are created;
 		\item the pieces are created and placed on the board (using the same algorithm for both sides, but tweaked with a row multiplier, like in algorithm \ref{alg:getlegaldisplacements});
-		\item the empty stacks \texttt{moves} and \texttt{redoMoves} are created
-		\item one of the players is set as current player
+		\item the empty stacks \texttt{moves} and \texttt{redoMoves} are created;
+		\item one of the players is set as current player.
 	\end{enumerate}
 	
 	\subsubsection{Getting all movable pieces}
@@ -278,14 +278,32 @@
 	The list of all movable pieces is used not only for an easier check of the player's input, but also to help the player deciding what to do, by printing a board that highlights all the pieces that can be moved.
 	
 	\subsubsection{Selecting an action (move, undo, redo, etc.)}
-	The player is now able to select an action: move (if \texttt{canMove == True}), undo (if \texttt{len(moves) > 0}), redo (if \texttt{len(redoMoves) > 0}), replay or nothing (if \texttt{canMove == False}).\\
+	The player is now able to select an action: move a selected piece (if \texttt{canMove == True}), undo (if \texttt{len(moves) > 0}), redo (if \texttt{len(redoMoves) > 0}), replay or nothing (if \texttt{canMove == False}).\\
 	An action is stored as an enumarated value of the class \texttt{ActionType}.\\
 	If the player is not human there are only two possible choices: move or nothing.
 	
 	\subsubsection{Perform the action}
-	...
+	Every action is then performed depending on the player's choice:
+	\begin{itemize}
+		\item move: player must select a legal destination and the move is stored (also, \texttt{redoMoves} is emptyed). If the player can eat again after the moving he must do so;
+		\item undo , redo, replay: simply call the corresponding function;
+		\item nothing.
+	\end{itemize}
+	Initally, when the only action coded was \textit{move}, the next player would have been very easy to caculalte. Algorithm \ref{alg:nextplayerold} shows how it was done.
+	\begin{algorithm}[h]
+		\label{alg:nextplayerold}
+		\While{there is not a winner}{
+			\For{each player}{
+				select move\\
+				perform move\\
+			}
+		}
+		\caption{Old game loop}
+	\end{algorithm}
+	This had to be changed by removing the for each loop and calculating the next player every time an action is performed (see section \ref{subsubsec:nextplayer} \textit{Next player}) .
 	
 	\subsubsection{Next player}
+	\label{subsubsec:nextplayer}
 	Because this program supports undo and redo, calculating who the next player is is not straightforward.\\
 	This is how it is calculated depending on the action performed (note that this is executed \textit{after} the action):
 	\begin{itemize}
@@ -295,78 +313,14 @@
 		\item replay: the same player, because when the replay is over it will still be the turn of the player who called the function;
 		\item nothing: the other player.
 	\end{itemize}
+
+	\subsection{AI}
+	The \texttt{Player} class has two functions that return the coordinates of a random valid piece that can move and a random valid move. This functions are called when the cpu player is choosing its move.\\
 	
 	\section{Future work}
-	...
+	The board may be implemented by using a graph insted of a 2D list. Because the pieces in checkers can only be in black squares, it would make sense to consider each black square a node which edges connect to the (up to) 4 diagonal black squares.
 	
 	\section{Conclusion}
-	...
-
-	
-	\section{Formatting}
-	Some common formatting you may need uses these commands for \textbf{Bold Text}, \textit{Italics}, and \underline{underlined}. \texttt{Inline code}.
-	\subsection{Referencing}
-	You should cite References like this: \cite{Keshav}. The references are saved in an external .bib file, and will automatically be added to the bibliography at the end once cited.
-	
-	\figuremacro{h}{placeholder}{ImageTitle}{ - Some Descriptive Text}{1.0}
-	\subsection{LineBreaks}
-	Here is a line
-    
-    Here is a line followed by a double line break.
-	This line is only one line break down from the above, Notice that latex can ignore this
-    
-    We can force a break \\ with the break operator.
-    
-	\subsection{Maths}
-    Embedding Maths is Latex's bread and butter    
-    
-    {\centering \Large \(
-        J = \begin{bmatrix}
-            \frac{\delta e}{\delta \theta _0}
-            \frac{\delta e}{\delta \theta _1}
-            \frac{\delta e}{\delta \theta _2}
-        \end{bmatrix}
-        = e_{current} - e_{target} 
-    \)\par}
-	
-	\subsection{Code Listing}
-    You can load segments of code from a file, or embed them directly.
-    
-\begin{lstlisting}[caption = Hello World! in c++]
-#include <iostream>
-
-int main() {
-    std::cout << "Hello World!" << std::endl;
-    std::cin.get();
-    return 0;
-}
-\end{lstlisting}
-
-\lstinputlisting[caption = Hello World! in python script]{./sourceCode/hello.py}
-    
-\subsection{PseudoCode}
-
-\begin{algorithm}[h]
-\For{$i = 0$ \KwTo $100$}{
- print\_number = true\;
-\If{i is divisible by 3}{
- print "Fizz"\;
- print\_number = false\;
-}
-\If{i is divisible by 5}{
- print "Buzz"\;
- print\_number = false\;
-}
-\If{print\_number}{
-    print i\;
-}
-print a newline\;
-}
-\caption{FizzBuzz}
-\end{algorithm}
-	
-\section{Conclusion}	
-\bibliographystyle{ieeetr}
-\bibliography{references}
+	It have been very useful to plan the data structures used ahead, because they can be difficult to amend once in the code, expecially if the language used is not Python, which uses lists only.
 		
 \end{document}
