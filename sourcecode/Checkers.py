@@ -202,24 +202,6 @@ def getLegalDisplacements(coordinates, mustEat=False):
 
 
 # undo
-##def undo(move):
-##
-##    undoPosition = (move.originPosition[0] - move.displacement[0], move.originPosition[1] - move.displacement[1])
-##
-##    # undo position
-##    board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
-##
-##    # undo eat
-##    if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
-##        board[move.originPosition[0] - int(move.displacement[0] / 2)][move.originPosition[1] - int(move.displacement[1] / 2)] = pieceEaten
-##
-##    # undo becoming king
-##    if move.doesBecomeKing:
-##        board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
-
-
-
-# undo
 def undo(movesNo=1):
 
     for moveNo in range(movesNo):
@@ -228,22 +210,6 @@ def undo(movesNo=1):
 
         # push move to redo
         redoMoves.append(move);
-
-##        undoPosition = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
-##
-##        # undo position
-##        board[move.originPosition[0]][move.originPosition[1]] = board[undoPosition[0]][undoPosition[1]]
-##
-##        # undo eat
-##        if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
-##            board[move.originPosition[0] + int(move.displacement[0] / 2)][move.originPosition[1] + int(move.displacement[1] / 2)] = pieceEaten
-##
-##        # undo becoming king
-##        if move.doesBecomeKing:
-##            board[undoPosition[0]][undoPosition[1]].undoBecomingKing()
-##
-##        # empty the "from" square
-##        board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = emptySquare
 
         undoDisplacement = (move.displacement[0] * -1, move.displacement[1] * -1)
         undoFrom = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
@@ -272,20 +238,6 @@ def redo(movesNo=1):
 
         # push move to undo
         moves.append(move);
-
-##        # redo position
-##        board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]] = board[move.originPosition[0]][move.originPosition[1]]
-##
-##        # redo eat
-##        if abs(move.displacement[0]) == 2 and abs(move.displacement[1]) == 2:
-##           board[move.originPosition[0] + int(displacement[0] / 2)][move.originPosition[1] + int(displacement[1] / 2)] = emptySquare
-##
-##        # redo becoming king
-##        if move.doesBecomeKing:
-##            board[move.originPosition[0] + move.displacement[0]][move.originPosition[1] + move.displacement[1]].becomesKing()
-##
-##        # empty the "from" square
-##        board[move.originPosition[0]][move.originPosition[1]] = emptySquare
 
         redoFrom = (move.originPosition[0], move.originPosition[1])
         redoTo = (move.originPosition[0] + move.displacement[0], move.originPosition[1] + move.displacement[1])
@@ -345,36 +297,6 @@ def setupPieces(board):
 def replay():
 
     timeToWait = 1.5
-
-##    # board
-##    board = [[emptySquare for col in range(boardDimention)] for row in range(boardDimention)]
-##    setupPieces(board)
-##
-##    printBoard(board)
-##    time.sleep(timeToWait)
-##
-##    # create a list of moves
-##    movesToReplay = moves[:]
-##
-##    # replay
-##    while not movesToReplay == []:
-##        moveToReplay = movesToReplay.pop(0)
-##
-##        # move piece
-##        #print("Moving " + str(moveToReplay.originPosition[0]), str(moveToReplay.originPosition[1]) + " by " + str(moveToReplay.displacement[0]), str(moveToReplay.displacement[1]))
-##        board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]] = board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]]
-##        board[moveToReplay.originPosition[0]][moveToReplay.originPosition[1]] = emptySquare
-##
-##        # eat
-##        if abs(moveToReplay.displacement[0]) == 2 and abs(moveToReplay.displacement[1]) == 2:
-##            board[moveToReplay.originPosition[0] + int(displacement[0] / 2)][moveToReplay.originPosition[0] + int(moveToReplay.displacement[1] / 2)] = moveToReplay.pieceEaten
-##
-##        # become king
-##        if moveToReplay.doesBecomeKing:
-##            board[moveToReplay.originPosition[0] + moveToReplay.displacement[0]][moveToReplay.originPosition[1] + moveToReplay.displacement[1]].becomesKing()
-##
-##        printBoard(board)
-##        time.sleep(timeToWait)
 
     totalNumberOfMoves = len(moves)
 
@@ -574,30 +496,7 @@ while not someoneWins:
         else:
             actionSelected = ActionType.NONE
         time.sleep(timeToWait)
-            
 
-    # SELECT A PIECE
-##        rowSelected = None
-##        colSelected = None
-##        while rowSelected == None and colSelected == None:
-##            stringToPrintToUser = "Select piece " + player.symbols[PieceRank.MAN] + " > "
-##            textInput = input(stringToPrintToUser)
-##            tempRow, tempCol = coordinatesFromInput(textInput)
-##            # select it if there is a piece
-##            # and it belongs to the player
-##            # and it can be moved
-##            squareToCheck = board[tempRow][tempCol]
-##            if (type(squareToCheck) is Piece):
-##                if (squareToCheck.player == player):
-##                    if not getLegalDisplacements((tempRow, tempCol)) == []:
-##                        rowSelected = tempRow
-##                        colSelected = tempCol
-##                    else:
-##                        print("This piece can't move.")
-##                else:
-##                    print("Not your piece.")
-##            else:
-##                print("No piece here.")
 
     # DO ACTION
     if actionSelected == ActionType.MOVE:
