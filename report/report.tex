@@ -308,8 +308,8 @@
 	This is how it is calculated depending on the action performed (note that this is executed \textit{after} the action):
 	\begin{itemize}
 		\item move: the other player;
-		\item undo: the player of the last move in \texttt{redoMoves};
-		\item redo: the player of the last move in \texttt{moves};
+		\item undo: the player of the last move in \texttt{redoMoves}. The last move in \texttt{redoMoves} actually contains the coordinates of the wanted player. This player has to be correct because if it is in the next move that can be redone it means that he has a legal move tho make (because she did it before);
+		\item redo: the player of the last move in \texttt{moves}. It works similarly to the previuos case;
 		\item replay: the same player, because when the replay is over it will still be the turn of the player who called the function;
 		\item nothing: the other player.
 	\end{itemize}
@@ -320,7 +320,8 @@
 	\section{Enhancements}
 	The board may be implemented by using a graph insted of a 2D list. Because the pieces in checkers can only be in black squares, it would make sense to consider each black square a node which edges connect to the (up to) 4 diagonal black squares. In other words, a sqaure will have a reference to its \texttt{topLeftSquare}, \texttt{topRightSquare}, \texttt{bottomRightSquare} and \texttt{bottomLeftSquare}.\\
 	For example, the funcion that checks if there is a winner can be updated. In its current state, it loop thorugh each square, even the white ones. If the board was a graph as described before, it could recursively check each node, halving the sqaures to check.\\
-	Another example can be with anything involved with piece movements. Insted of using displacementes or destination coordinates, it can be more efficient to utilise the edeges directly (e.g. \texttt{topLeftSquare} instead of \texttt{(-1, -1)}).
+	Another example can be with anything involved with piece movements. Insted of using displacementes or destination coordinates, it can be more efficient to utilise the edeges directly (e.g. \texttt{topLeftSquare} instead of \texttt{(-1, -1)}).\\
+	Splitting the code in different files can be an improvement, but there are a some globabl variables that makes the work a little difficult.
 	
 	\section{Critical evaluation}
 	Using displacements instead of coordinates was an ealy development idea though to simplfy the program. Considering the final code, it may have been simplier to use coordinates.\\
@@ -328,9 +329,7 @@
 	It should also be not to difficult to use this program as a template to build a different board game because not many things have been hardcoded.
 	
 	\section{Personal evaluation}
-	...
-	
-	\section{///Conclusion///}
-	It have been very useful to plan the data structures used ahead, because they can be difficult to amend once in the code, expecially if the language used is not Python, which uses lists only.
+	It has been very useful to plan the data structures used ahead, because they can be difficult to amend once in the code, expecially if the language used is not Python, which uses lists only.\\
+	While coding the \texttt{undo} and \texttt{redo} function has not been too difficult, implementing these functions in the game loop has been challenging, expecially the calculation of the next player.
 		
 \end{document}
